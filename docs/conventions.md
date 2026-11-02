@@ -26,7 +26,7 @@ Do not merge one personal branch directly into the other. Both branches land in 
 - Keep PRs focused on one logical change.
 - Include a short summary, testing notes, and screenshots or recordings for visual changes.
 - Resolve review conversations before merging.
-- Prefer **Squash and merge** to keep `main` history clean.
+- Prefer **merge commits** to preserve the personal branch history; do not squash.
 
 Recommended branch protection for `main`:
 
@@ -96,6 +96,15 @@ pnpm build
 ```
 
 A commit should not be created with a failing lint, typecheck, test, or build.
+
+## UI/UX review
+
+Every UI change must be checked against the shared `web-design-guidelines` skill:
+
+- Skill: `.agents/skills/web-design-guidelines/SKILL.md`
+- Latest rules: https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md
+
+Load the skill before writing UI and re-run the review before committing. Apply it to every UI change, not only at phase checkpoints.
 
 ## Phase checkpoints
 

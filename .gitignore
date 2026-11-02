@@ -48,7 +48,3 @@ next-env.d.ts
 
 # tooling
 .eslintcache
-
-# local agent tooling
-.agents/
-skills-lock.json
