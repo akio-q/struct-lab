@@ -49,6 +49,7 @@ pnpm build
 ## Documentation
 
 - [Architecture](docs/architecture.md)
+- [Roadmap](docs/roadmap.md)
 - [Collaboration conventions](docs/conventions.md)
 - [Architecture decisions](docs/decisions.md)
 - [Agent instructions](AGENTS.md)
