@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fira_Code, Geist } from "next/font/google";
+import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,12 +15,11 @@ const firaCode = Fira_Code({
 
 export const metadata: Metadata = {
   title: {
-    default: "StructLab",
-    template: "%s · StructLab",
+    default: siteConfig.name,
+    template: `%s · ${siteConfig.name}`,
   },
-  description:
-    "An interactive visual playground for arrays, stacks, queues, deques, and doubly linked lists.",
-  applicationName: "StructLab",
+  description: siteConfig.description,
+  applicationName: siteConfig.name,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
