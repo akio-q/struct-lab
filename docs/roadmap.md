@@ -56,11 +56,11 @@ chore(ui): initialize shadcn/ui and motion dependencies
 
 ### 0.3 Design foundation
 
-- [ ] Dark-first design tokens
-- [ ] Geist Sans for UI
-- [ ] Fira Code for values, addresses, and indices
-- [ ] StructLab metadata
-- [ ] Base html/body styling
+- [x] Dark-first design tokens
+- [x] Geist Sans for UI
+- [x] Fira Code for values, addresses, and indices
+- [x] StructLab metadata
+- [x] Base html/body styling
 
 Commit:
 
