@@ -84,10 +84,10 @@ chore: add formatting, testing, and repository hygiene
 
 ### 0.5 Documentation baseline
 
-- [ ] Finalize README
-- [ ] Add `.env.example`
-- [ ] Add site configuration
-- [ ] Document local setup
+- [x] Finalize README
+- [x] Add `.env.example`
+- [x] Add site configuration
+- [x] Document local setup
 
 Commit:
 
