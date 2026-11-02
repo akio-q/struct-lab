@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Fira_Code, Geist } from "next/font/google"
 import { siteConfig } from "@/lib/site"
 import "./globals.css"
@@ -22,6 +22,11 @@ export const metadata: Metadata = {
   applicationName: siteConfig.name,
 }
 
+export const viewport: Viewport = {
+  colorScheme: "dark",
+  themeColor: "#08090A",
+}
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -29,6 +34,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`dark ${geistSans.variable} ${firaCode.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-background font-sans text-foreground">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-panel focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
+        >
+          Skip to content
+        </a>
         {children}
       </body>
     </html>

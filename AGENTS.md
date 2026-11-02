@@ -85,3 +85,13 @@ docs: update architecture notes
 - Violet accent, amber pointer tags, rose errors, emerald success
 - Motion should feel physical and restrained
 
+## UI/UX review
+
+Before creating or changing user-facing UI, load the `web-design-guidelines` skill at `.agents/skills/web-design-guidelines/SKILL.md`. Fetch the latest rules from:
+
+```text
+https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md
+```
+
+Apply the review to every UI change, not only at phase checkpoints.
+
