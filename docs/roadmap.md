@@ -149,11 +149,11 @@ feat(shell): add header and animated structure tabs
 
 ### 1.4 Playground shell
 
-- [ ] Persistent mounted panels
-- [ ] Inactive panels `inert` and `aria-hidden`
-- [ ] Active panel rendering
-- [ ] Suspense boundary
-- [ ] Responsive page frame
+- [x] Persistent mounted panels
+- [x] Inactive panels `inert` and `aria-hidden`
+- [x] Active panel rendering
+- [x] Suspense boundary
+- [x] Responsive page frame
 
 Commit:
 
