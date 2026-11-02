@@ -13,9 +13,9 @@ StructLab is an interactive visual playground for fundamental data structures. T
 
 ## Status
 
-Phase 0.1 is complete: the Next.js baseline is scaffolded and verified.
+Phase 0.2 is complete: Framer Motion, Lucide, and shadcn/ui are installed and verified.
 
-The next milestone is Phase 0.2: Framer Motion, Lucide, and shadcn/ui initialization.
+The next milestone is Phase 0.3: dark-first design tokens and Geist/Fira Code typography.
 
 ## Local setup
 
