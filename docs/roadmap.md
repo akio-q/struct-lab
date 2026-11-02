@@ -110,10 +110,10 @@ git push origin main --tags
 
 ### 1.1 Shared types and registry
 
-- [ ] Structure IDs and metadata
-- [ ] Complexity types
-- [ ] Trace types
-- [ ] Structure registry
+- [x] Structure IDs and metadata
+- [x] Complexity types
+- [x] Trace types
+- [x] Structure registry
 
 Commit:
 
