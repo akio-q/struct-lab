@@ -17,6 +17,7 @@ StructLab is an interactive visual playground for fundamental data structures. T
 Read these before making architectural changes:
 
 - `docs/architecture.md` — system design and visual specification
+- `docs/roadmap.md` — phased execution plan and exact commit messages
 - `docs/conventions.md` — branch, commit, PR, and verification rules
 - `docs/decisions.md` — accepted architecture decisions
 
