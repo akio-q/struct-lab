@@ -5,6 +5,6 @@ export const siteConfig = {
   links: {
     github: "https://github.com/akio-q/struct-lab",
   },
-} as const;
+} as const
 
-export type SiteConfig = typeof siteConfig;
+export type SiteConfig = typeof siteConfig

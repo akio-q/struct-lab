@@ -1,6 +1,6 @@
 # StructLab
 
-StructLab is an interactive visual playground for fundamental data structures. The v1 scope covers arrays, stacks, queues, deques, and doubly linked lists in a single-page canvas with step-by-step traces.
+StructLab is an interactive visual playground for fundamental data structures. The first release covers arrays, stacks, queues, deques, and doubly linked lists in a single-page canvas with step-by-step traces.
 
 ## Stack
 
@@ -13,15 +13,15 @@ StructLab is an interactive visual playground for fundamental data structures. T
 
 ## Status
 
-Phase 0 — Foundation is in progress.
+Phase 0 — Foundation is complete.
 
 - [x] 0.1 Scaffold
 - [x] 0.2 UI dependencies
 - [x] 0.3 Design foundation
-- [ ] 0.4 Tooling
+- [x] 0.4 Tooling
 - [x] 0.5 Documentation baseline
 
-Phase 0.4 (Prettier, Vitest, Playwright, and package scripts) is the remaining foundation step. See the [roadmap](docs/roadmap.md) for the full plan.
+The next milestone is Phase 1 — the single-page shell. See the [roadmap](docs/roadmap.md) for the full plan.
 
 ## Requirements
 
@@ -47,20 +47,26 @@ Open [http://localhost:3000](http://localhost:3000).
 
 No environment variables are required for v1. `.env.example` documents this; copy it to `.env.local` only if you add local overrides later.
 
-## Scripts
-
-| Command | Description |
-| --- | --- |
-| `pnpm dev` | Start the development server |
-| `pnpm build` | Create a production build |
-| `pnpm start` | Serve the production build |
-| `pnpm lint` | Run ESLint |
-
-`pnpm typecheck` and `pnpm test` are added with the phase 0.4 tooling. Until then, type-check with:
+Playwright browsers are not installed by `pnpm install`. Install them once before running end-to-end tests:
 
 ```powershell
-pnpm exec tsc --noEmit
+pnpm exec playwright install
 ```
+
+## Scripts
+
+| Command             | Description                           |
+| ------------------- | ------------------------------------- |
+| `pnpm dev`          | Start the development server          |
+| `pnpm build`        | Create a production build             |
+| `pnpm start`        | Serve the production build            |
+| `pnpm lint`         | Run ESLint with zero warnings allowed |
+| `pnpm typecheck`    | Type-check with TypeScript            |
+| `pnpm test`         | Run Vitest unit tests                 |
+| `pnpm test:watch`   | Run Vitest in watch mode              |
+| `pnpm test:e2e`     | Run Playwright end-to-end tests       |
+| `pnpm format`       | Format the repository with Prettier   |
+| `pnpm format:check` | Check formatting without writing      |
 
 ## Verification
 
@@ -68,12 +74,15 @@ Before every commit:
 
 ```powershell
 pnpm lint
-pnpm exec tsc --noEmit
+pnpm typecheck
+pnpm test
+pnpm format:check
 ```
 
 Before phase checkpoints:
 
 ```powershell
+pnpm test:e2e
 pnpm build
 ```
 
@@ -87,7 +96,10 @@ src/
 │  ├─ shell/       # Header, tabs, and playground shell
 │  └─ structures/  # Self-contained structure modules
 ├─ hooks/          # Shared hooks
-└─ lib/            # Site configuration, structure types, and utilities
+├─ lib/            # Site configuration, structure types, and utilities
+└─ test/           # Vitest setup
+tests/
+└─ e2e/            # Playwright end-to-end specs
 ```
 
 ## Branches

@@ -1,17 +1,17 @@
-import type { Metadata } from "next";
-import { Fira_Code, Geist } from "next/font/google";
-import { siteConfig } from "@/lib/site";
-import "./globals.css";
+import type { Metadata } from "next"
+import { Fira_Code, Geist } from "next/font/google"
+import { siteConfig } from "@/lib/site"
+import "./globals.css"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
-});
+})
 
 const firaCode = Fira_Code({
   variable: "--font-fira-code",
   subsets: ["latin"],
-});
+})
 
 export const metadata: Metadata = {
   title: {
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   applicationName: siteConfig.name,
-};
+}
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -32,5 +32,5 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {children}
       </body>
     </html>
-  );
+  )
 }
