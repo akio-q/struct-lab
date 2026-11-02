@@ -70,11 +70,11 @@ style: add dark-first tokens and Geist/Fira Code typography
 
 ### 0.4 Tooling
 
-- [ ] Prettier and Tailwind class sorting
-- [ ] Vitest setup
-- [ ] Playwright setup
-- [ ] Package scripts for lint, typecheck, test, and build
-- [ ] `.gitignore` review
+- [x] Prettier and Tailwind class sorting
+- [x] Vitest setup
+- [x] Playwright setup
+- [x] Package scripts for lint, typecheck, test, and build
+- [x] `.gitignore` review
 
 Commit:
 

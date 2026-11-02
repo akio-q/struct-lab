@@ -53,11 +53,13 @@ Before every commit:
 pnpm lint
 pnpm typecheck
 pnpm test
+pnpm format:check
 ```
 
 Before phase checkpoints:
 
 ```powershell
+pnpm test:e2e
 pnpm build
 ```
 
