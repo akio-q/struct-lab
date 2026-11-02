@@ -136,10 +136,10 @@ feat(shell): sync active structure with URL search params
 
 ### 1.3 Header and tabs
 
-- [ ] Brand header
-- [ ] Accessible structure tabs
-- [ ] Animated active tab pill
-- [ ] Keyboard navigation
+- [x] Brand header
+- [x] Accessible structure tabs
+- [x] Animated active tab pill
+- [x] Keyboard navigation
 
 Commit:
 
