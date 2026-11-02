@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# StructLab
 
-## Getting Started
+StructLab is an interactive visual playground for fundamental data structures. The first release covers arrays, stacks, queues, deques, and doubly linked lists in a single-page canvas.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
+- Next.js App Router
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- Framer Motion
+- lucide-react
+
+## Status
+
+Phase 0.1 is complete: the Next.js baseline is scaffolded and verified.
+
+The next milestone is Phase 0.2: Framer Motion, Lucide, and shadcn/ui initialization.
+
+## Local setup
+
+```powershell
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Branches
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`main` is the integration branch.
 
-## Learn More
+Personal development branches:
 
-To learn more about Next.js, take a look at the following resources:
+- `dev/valentyn`
+- `dev/andriy`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Do not commit directly to `main`. Open a pull request from your personal branch when a milestone is ready.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Verification
 
-## Deploy on Vercel
+```powershell
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm build
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Documentation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Architecture](docs/architecture.md)
+- [Collaboration conventions](docs/conventions.md)
+- [Architecture decisions](docs/decisions.md)
+- [Agent instructions](AGENTS.md)
+
+## Deployment
+
+The app is designed for Vercel with no environment variables required for v1.
+
+- Framework preset: Next.js
+- Install command: `pnpm install --frozen-lockfile`
+- Build command: `pnpm build`
+- Node version: 22.x
