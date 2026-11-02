@@ -136,45 +136,40 @@ src/
 ## Shared state types
 
 ```ts
-export type StructureId =
-  | "array"
-  | "stack"
-  | "queue"
-  | "deque"
-  | "linked-list";
+export type StructureId = "array" | "stack" | "queue" | "deque" | "linked-list"
 
-export type ComplexityClass = "O(1)" | "O(n)";
-export type PlaybackStatus = "idle" | "playing" | "paused";
-export type Speed = 0.5 | 1 | 1.5 | 2;
+export type ComplexityClass = "O(1)" | "O(n)"
+export type PlaybackStatus = "idle" | "playing" | "paused"
+export type Speed = 0.5 | 1 | 1.5 | 2
 
 export interface Complexity {
-  time: ComplexityClass;
-  space: ComplexityClass;
-  note: string;
+  time: ComplexityClass
+  space: ComplexityClass
+  note: string
 }
 
-export type Feedback = "neutral" | "success" | "warning" | "error";
+export type Feedback = "neutral" | "success" | "warning" | "error"
 
 export interface Highlight {
-  target: "item" | "slot" | "node" | "edge" | "pointer";
-  id: string;
-  role: "active" | "source" | "target" | "insert" | "remove" | "pointer";
+  target: "item" | "slot" | "node" | "edge" | "pointer"
+  id: string
+  role: "active" | "source" | "target" | "insert" | "remove" | "pointer"
 }
 
 export interface TraceFrame<S> {
-  id: string;
-  state: S;
-  operation: string;
-  phase: string;
-  detail: string;
-  complexity: Complexity;
-  highlights: Highlight[];
-  feedback: Feedback;
+  id: string
+  state: S
+  operation: string
+  phase: string
+  detail: string
+  complexity: Complexity
+  highlights: Highlight[]
+  feedback: Feedback
 }
 
 export interface Trace<S> {
-  frames: TraceFrame<S>[];
-  cursor: number;
+  frames: TraceFrame<S>[]
+  cursor: number
 }
 ```
 

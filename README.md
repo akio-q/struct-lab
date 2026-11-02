@@ -13,9 +13,9 @@ StructLab is an interactive visual playground for fundamental data structures. T
 
 ## Status
 
-Phase 0.2 is complete: Framer Motion, Lucide, and shadcn/ui are installed and verified.
+Phase 0.4 is complete: design tokens, typography, formatting, unit testing, and end-to-end testing are configured.
 
-The next milestone is Phase 0.3: dark-first design tokens and Geist/Fira Code typography.
+The next milestone is Phase 0.5: README, `.env.example`, site configuration, and local setup documentation.
 
 ## Local setup
 
@@ -43,6 +43,8 @@ Do not commit directly to `main`. Open a pull request from your personal branch 
 pnpm lint
 pnpm typecheck
 pnpm test
+pnpm test:e2e
+pnpm format:check
 pnpm build
 ```
 
