@@ -123,10 +123,10 @@ feat(shell): add structure registry and shared playground types
 
 ### 1.2 URL synchronization
 
-- [ ] Read and validate `?structure=`
-- [ ] Fallback to `array`
-- [ ] Update with `window.history.replaceState`
-- [ ] Support back/forward navigation
+- [x] Read and validate `?structure=`
+- [x] Fallback to `array`
+- [x] Update with `window.history.replaceState`
+- [x] Support back/forward navigation
 
 Commit:
 
