@@ -105,10 +105,31 @@
   html {
     @apply h-full font-sans;
     color-scheme: dark;
+    scroll-padding-top: 4.5rem;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
     @apply min-h-full bg-background text-foreground antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-balance;
+  }
+
+  p {
+    @apply text-pretty;
+  }
+
+  a,
+  button,
+  [role="button"] {
+    touch-action: manipulation;
   }
 
   code,

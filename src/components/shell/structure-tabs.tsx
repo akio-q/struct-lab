@@ -78,7 +78,7 @@ export function StructureTabs({ value, onValueChange, className }: StructureTabs
             onClick={() => onValueChange(structure.id)}
             onKeyDown={(event) => handleKeyDown(event, index)}
             className={cn(
-              "relative isolate flex h-8 shrink-0 items-center rounded-lg px-3 text-[13px] font-medium whitespace-nowrap transition-colors",
+              "relative isolate flex h-8 shrink-0 touch-manipulation items-center rounded-lg px-3 text-[13px] font-medium whitespace-nowrap transition-colors",
               "text-muted-foreground hover:text-foreground",
               "focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none",
               isActive && "text-foreground",
