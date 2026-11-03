@@ -177,11 +177,11 @@ feat(inspector): add shared complexity, pointer, and step-log dock primitives
 
 ### 1.6 Trace engine
 
-- [ ] Immutable frame history
-- [ ] Step forward/back
-- [ ] Branch truncation
-- [ ] Reset
-- [ ] Active-panel pause behavior
+- [x] Immutable frame history
+- [x] Step forward/back
+- [x] Branch truncation
+- [x] Reset
+- [x] Active-panel pause behavior
 
 Commit:
 
