@@ -200,11 +200,11 @@ git push origin main --tags
 
 ### 2.1 Array engine
 
-- [ ] Static mode
-- [ ] Dynamic mode
-- [ ] Capacity doubling
-- [ ] Access, insert, remove, append, pop, clear
-- [ ] Engine tests
+- [x] Static mode
+- [x] Dynamic mode
+- [x] Capacity doubling
+- [x] Access, insert, remove, append, pop, clear
+- [x] Engine tests
 
 Commit:
 
