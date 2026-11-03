@@ -26,15 +26,26 @@ export interface Highlight {
   role: HighlightRole
 }
 
-export interface TraceFrame<S> {
+export interface StepLogEntry {
   id: string
-  state: S
   operation: string
   phase: string
   detail: string
+  feedback: Feedback
+}
+
+export type PointerTone = "default" | "pointer" | "success" | "danger"
+
+export interface PointerEntry {
+  label: string
+  value: string | number | null
+  tone?: PointerTone
+}
+
+export interface TraceFrame<S> extends StepLogEntry {
+  state: S
   complexity: Complexity
   highlights: Highlight[]
-  feedback: Feedback
 }
 
 export interface Trace<S> {
