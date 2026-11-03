@@ -163,11 +163,11 @@ feat(shell): compose single-page playground shell
 
 ### 1.5 Inspector primitives
 
-- [ ] Complexity badge
-- [ ] Pointer inspector
-- [ ] Step log
-- [ ] Playback controls shell
-- [ ] Stage frame
+- [x] Complexity badge
+- [x] Pointer inspector
+- [x] Step log
+- [x] Playback controls shell
+- [x] Stage frame
 
 Commit:
 
