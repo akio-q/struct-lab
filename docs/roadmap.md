@@ -241,9 +241,9 @@ feat(array): wire array controls, complexity, and inspector
 
 ### 2.4 Stack engine
 
-- [ ] Push, pop, peek, clear
-- [ ] Overflow and underflow states
-- [ ] Engine tests
+- [x] Push, pop, peek, clear
+- [x] Overflow and underflow states
+- [x] Engine tests
 
 Commit:
 
