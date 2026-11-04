@@ -228,10 +228,10 @@ feat(array): add capacity, index, and shifting visualizer
 
 ### 2.3 Array integration
 
-- [ ] Operation controls
-- [ ] Complexity badges
-- [ ] Inspector state
-- [ ] Empty state
+- [x] Operation controls
+- [x] Complexity badges
+- [x] Inspector state
+- [x] Empty state
 
 Commit:
 

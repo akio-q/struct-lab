@@ -1,3 +1,4 @@
+import { ArrayView } from "@/components/structures/array-view"
 import { structureList } from "@/lib/structures/registry"
 import type { StructureId } from "@/lib/structures/types"
 import { cn } from "@/lib/utils"
@@ -28,7 +29,11 @@ export function StructureRenderer({ activeStructureId }: StructureRendererProps)
               isActive ? "relative flex-1" : "pointer-events-none absolute inset-0 opacity-0",
             )}
           >
-            <StructurePlaceholder structure={structure} />
+            {structure.id === "array" ? (
+              <ArrayView active={isActive} />
+            ) : (
+              <StructurePlaceholder structure={structure} />
+            )}
           </section>
         )
       })}
