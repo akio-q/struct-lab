@@ -266,10 +266,10 @@ feat(stack): add vertical chamber with push/pop animations
 
 ### 2.6 Stack integration
 
-- [ ] Controls
-- [ ] Pointer inspector
-- [ ] Complexity badges
-- [ ] Empty state
+- [x] Controls
+- [x] Pointer inspector
+- [x] Complexity badges
+- [x] Empty state
 
 Commit:
 
