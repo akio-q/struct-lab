@@ -64,4 +64,12 @@ describe("StructureRenderer", () => {
     expect(screen.getByRole("button", { name: "Enqueue" })).toBeVisible()
     expect(screen.getByTestId("queue-capacity")).toBeVisible()
   })
+
+  it("mounts the deque playground in the deque panel", () => {
+    render(<StructureRenderer activeStructureId="deque" />)
+
+    expect(screen.getByRole("heading", { name: "Deque" })).toBeVisible()
+    expect(screen.getByRole("button", { name: "Push front" })).toBeVisible()
+    expect(screen.getByTestId("deque-capacity")).toBeVisible()
+  })
 })

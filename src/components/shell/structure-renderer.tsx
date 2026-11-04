@@ -1,4 +1,5 @@
 import { ArrayView } from "@/components/structures/array-view"
+import { DequeView } from "@/components/structures/deque-view"
 import { QueueView } from "@/components/structures/queue-view"
 import { StackView } from "@/components/structures/stack-view"
 import { structureList } from "@/lib/structures/registry"
@@ -37,6 +38,8 @@ export function StructureRenderer({ activeStructureId }: StructureRendererProps)
               <StackView active={isActive} />
             ) : structure.id === "queue" ? (
               <QueueView active={isActive} />
+            ) : structure.id === "deque" ? (
+              <DequeView active={isActive} />
             ) : (
               <StructurePlaceholder structure={structure} />
             )}
