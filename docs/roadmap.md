@@ -301,10 +301,10 @@ feat(queue): add FIFO trace engine with front and rear pointers
 
 ### 3.2 Queue canvas
 
-- [ ] Horizontal conveyor
-- [ ] Head/tail tags
-- [ ] Enqueue/dequeue animations
-- [ ] Empty state
+- [x] Horizontal conveyor
+- [x] Head/tail tags
+- [x] Enqueue/dequeue animations
+- [x] Empty state
 
 Commit:
 
