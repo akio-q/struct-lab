@@ -48,4 +48,12 @@ describe("StructureRenderer", () => {
     expect(screen.getByRole("button", { name: "Append" })).toBeVisible()
     expect(screen.getByTestId("array-capacity")).toBeVisible()
   })
+
+  it("mounts the stack playground in the stack panel", () => {
+    render(<StructureRenderer activeStructureId="stack" />)
+
+    expect(screen.getByRole("heading", { name: "Stack" })).toBeVisible()
+    expect(screen.getByRole("button", { name: "Push" })).toBeVisible()
+    expect(screen.getByTestId("stack-capacity")).toBeVisible()
+  })
 })
