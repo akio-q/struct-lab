@@ -253,10 +253,10 @@ feat(stack): add LIFO engine with overflow and underflow states
 
 ### 2.5 Stack canvas
 
-- [ ] Vertical chamber
-- [ ] Top pointer
-- [ ] Push/pop animations
-- [ ] Overflow/underflow visuals
+- [x] Vertical chamber
+- [x] Top pointer
+- [x] Push/pop animations
+- [x] Overflow/underflow visuals
 
 Commit:
 

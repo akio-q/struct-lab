@@ -2,7 +2,8 @@
 
 import { AnimatePresence, motion, useReducedMotion, type Transition } from "framer-motion"
 import { arraySlotId, type ArrayState } from "@/components/structures/array/engine"
-import type { Highlight, HighlightRole } from "@/lib/structures/types"
+import { highlightRoleMeta, resolveSlotRoles } from "@/components/structures/shared/highlight-roles"
+import type { Highlight } from "@/lib/structures/types"
 import { cn } from "@/lib/utils"
 
 export interface ArrayCanvasProps {
@@ -12,97 +13,6 @@ export interface ArrayCanvasProps {
 }
 
 const SLOT_SIZE_REM = 3.5
-
-const rolePriority: Record<HighlightRole, number> = {
-  remove: 6,
-  insert: 5,
-  active: 4,
-  target: 3,
-  source: 2,
-  pointer: 1,
-}
-
-const roleMeta: Record<
-  HighlightRole,
-  { label: string; slotClassName: string; textClassName: string }
-> = {
-  active: {
-    label: "now",
-    slotClassName: "border-primary/60 bg-primary/10",
-    textClassName: "text-primary",
-  },
-  source: {
-    label: "src",
-    slotClassName: "border-pointer/60 bg-pointer/10",
-    textClassName: "text-pointer",
-  },
-  target: {
-    label: "dst",
-    slotClassName: "border-success/60 bg-success/10",
-    textClassName: "text-success",
-  },
-  insert: {
-    label: "new",
-    slotClassName: "border-success/70 bg-success/10",
-    textClassName: "text-success",
-  },
-  remove: {
-    label: "out",
-    slotClassName: "border-destructive/70 bg-destructive/10",
-    textClassName: "text-destructive",
-  },
-  pointer: {
-    label: "ptr",
-    slotClassName: "border-pointer/60 bg-pointer/10",
-    textClassName: "text-pointer",
-  },
-}
-
-function mergeRole(current: HighlightRole | undefined, next: HighlightRole): HighlightRole {
-  if (!current) {
-    return next
-  }
-
-  return rolePriority[next] > rolePriority[current] ? next : current
-}
-
-function slotRoles(
-  state: ArrayState,
-  highlights: readonly Highlight[],
-): Map<number, HighlightRole> {
-  const roles = new Map<number, HighlightRole>()
-  const itemRoles = new Map<string, HighlightRole>()
-  const indexBySlotId = new Map<string, number>()
-
-  for (let index = 0; index < state.capacity; index += 1) {
-    indexBySlotId.set(arraySlotId(index), index)
-  }
-
-  for (const highlight of highlights) {
-    if (highlight.target === "item") {
-      itemRoles.set(highlight.id, mergeRole(itemRoles.get(highlight.id), highlight.role))
-      continue
-    }
-
-    if (highlight.target === "slot") {
-      const index = indexBySlotId.get(highlight.id)
-
-      if (index !== undefined) {
-        roles.set(index, mergeRole(roles.get(index), highlight.role))
-      }
-    }
-  }
-
-  for (const [index, item] of state.items.entries()) {
-    const role = itemRoles.get(item.id)
-
-    if (role) {
-      roles.set(index, mergeRole(roles.get(index), role))
-    }
-  }
-
-  return roles
-}
 
 function describeArray(state: ArrayState): string {
   const mode = state.mode === "dynamic" ? "Dynamic" : "Static"
@@ -118,7 +28,7 @@ function describeArray(state: ArrayState): string {
 
 export function ArrayCanvas({ state, highlights = [], className }: ArrayCanvasProps) {
   const reduceMotion = useReducedMotion()
-  const roles = slotRoles(state, highlights)
+  const roles = resolveSlotRoles(state, highlights, arraySlotId)
   const layoutTransition: Transition = reduceMotion
     ? { duration: 0 }
     : { type: "spring", stiffness: 380, damping: 34, mass: 0.7 }
@@ -189,10 +99,10 @@ export function ArrayCanvas({ state, highlights = [], className }: ArrayCanvasPr
                   aria-hidden="true"
                   className={cn(
                     "h-3 font-mono text-[9px] leading-none tracking-[0.08em] uppercase",
-                    role ? roleMeta[role].textClassName : "invisible",
+                    role ? highlightRoleMeta[role].textClassName : "invisible",
                   )}
                 >
-                  {role ? roleMeta[role].label : "·"}
+                  {role ? highlightRoleMeta[role].label : "·"}
                 </span>
                 <span
                   className={cn(
@@ -224,7 +134,7 @@ export function ArrayCanvas({ state, highlights = [], className }: ArrayCanvasPr
                   item
                     ? "border-border bg-white/[0.04] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
                     : "border-dashed border-border/60 bg-background/20",
-                  role ? roleMeta[role].slotClassName : null,
+                  role ? highlightRoleMeta[role].slotClassName : null,
                 )}
                 style={{ gridColumn: index + 1, gridRow: 2 }}
               >
