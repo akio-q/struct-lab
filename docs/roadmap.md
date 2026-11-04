@@ -326,9 +326,9 @@ feat(queue): wire queue controls and inspector
 
 ### 3.4 Deque engine
 
-- [ ] Push/pop front
-- [ ] Push/pop back
-- [ ] Engine tests
+- [x] Push/pop front
+- [x] Push/pop back
+- [x] Engine tests
 
 Commit:
 
