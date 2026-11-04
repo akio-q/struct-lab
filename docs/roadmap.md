@@ -214,11 +214,11 @@ feat(array): add trace engine for static and dynamic arrays
 
 ### 2.2 Array canvas
 
-- [ ] Index strip
-- [ ] Capacity frame
-- [ ] Empty slots
-- [ ] Shift animations
-- [ ] Reallocation animation
+- [x] Index strip
+- [x] Capacity frame
+- [x] Empty slots
+- [x] Shift animations
+- [x] Reallocation animation
 
 Commit:
 
