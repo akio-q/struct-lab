@@ -1,4 +1,5 @@
 import { ArrayView } from "@/components/structures/array-view"
+import { QueueView } from "@/components/structures/queue-view"
 import { StackView } from "@/components/structures/stack-view"
 import { structureList } from "@/lib/structures/registry"
 import type { StructureId } from "@/lib/structures/types"
@@ -34,6 +35,8 @@ export function StructureRenderer({ activeStructureId }: StructureRendererProps)
               <ArrayView active={isActive} />
             ) : structure.id === "stack" ? (
               <StackView active={isActive} />
+            ) : structure.id === "queue" ? (
+              <QueueView active={isActive} />
             ) : (
               <StructurePlaceholder structure={structure} />
             )}

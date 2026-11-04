@@ -56,4 +56,12 @@ describe("StructureRenderer", () => {
     expect(screen.getByRole("button", { name: "Push" })).toBeVisible()
     expect(screen.getByTestId("stack-capacity")).toBeVisible()
   })
+
+  it("mounts the queue playground in the queue panel", () => {
+    render(<StructureRenderer activeStructureId="queue" />)
+
+    expect(screen.getByRole("heading", { name: "Queue" })).toBeVisible()
+    expect(screen.getByRole("button", { name: "Enqueue" })).toBeVisible()
+    expect(screen.getByTestId("queue-capacity")).toBeVisible()
+  })
 })
