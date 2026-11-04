@@ -288,10 +288,10 @@ git push origin main --tags
 
 ### 3.1 Queue engine
 
-- [ ] Enqueue, dequeue, peek, clear
-- [ ] Head/tail derivation
-- [ ] Overflow and underflow
-- [ ] Engine tests
+- [x] Enqueue, dequeue, peek, clear
+- [x] Head/tail derivation
+- [x] Overflow and underflow
+- [x] Engine tests
 
 Commit:
 
