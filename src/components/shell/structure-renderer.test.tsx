@@ -40,4 +40,12 @@ describe("StructureRenderer", () => {
 
     expect(screen.getByRole("heading", { name: "Doubly Linked List" })).toBeVisible()
   })
+
+  it("mounts the array playground in the array panel", () => {
+    render(<StructureRenderer activeStructureId="array" />)
+
+    expect(screen.getByRole("heading", { name: "Array" })).toBeVisible()
+    expect(screen.getByRole("button", { name: "Append" })).toBeVisible()
+    expect(screen.getByTestId("array-capacity")).toBeVisible()
+  })
 })
