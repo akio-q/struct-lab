@@ -314,9 +314,9 @@ feat(queue): add horizontal conveyor with enqueue and dequeue animations
 
 ### 3.3 Queue integration
 
-- [ ] Controls
-- [ ] Inspector
-- [ ] Complexity badges
+- [x] Controls
+- [x] Inspector
+- [x] Complexity badges
 
 Commit:
 
