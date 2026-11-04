@@ -372,12 +372,12 @@ git push origin main --tags
 
 ### 4.1 Model and integrity
 
-- [ ] Nodes with values and addresses
-- [ ] `prev` and `next` links
-- [ ] Head/tail
-- [ ] Integrity checks
-- [ ] Cycle detection
-- [ ] Engine tests
+- [x] Nodes with values and addresses
+- [x] `prev` and `next` links
+- [x] Head/tail
+- [x] Integrity checks
+- [x] Cycle detection
+- [x] Engine tests
 
 Commit:
 
