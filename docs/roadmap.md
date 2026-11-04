@@ -338,10 +338,10 @@ feat(deque): add bidirectional trace engine for both ends
 
 ### 3.5 Deque canvas
 
-- [ ] Symmetric pipeline
-- [ ] Front/back pointers
-- [ ] Both-end animations
-- [ ] Empty state
+- [x] Symmetric pipeline
+- [x] Front/back pointers
+- [x] Both-end animations
+- [x] Empty state
 
 Commit:
 
