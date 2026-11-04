@@ -351,9 +351,9 @@ feat(deque): add symmetric double-ended pipeline visualizer
 
 ### 3.6 Deque integration
 
-- [ ] Controls
-- [ ] Inspector
-- [ ] Complexity badges
+- [x] Controls
+- [x] Inspector
+- [x] Complexity badges
 
 Commit:
 
