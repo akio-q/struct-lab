@@ -1,4 +1,11 @@
-import type { TraceFrame } from "@/lib/structures/types"
+import { constantTime, linearTime } from "@/lib/structures/complexity"
+import type {
+  Complexity,
+  Feedback,
+  Highlight,
+  HighlightRole,
+  TraceFrame,
+} from "@/lib/structures/types"
 
 export interface LinkedListNode {
   id: string
@@ -339,6 +346,510 @@ export function checkLinkedListIntegrity(state: LinkedListState): LinkedListInte
   }
 }
 
+interface LinkedListFrameSpec {
+  state: LinkedListState
+  operation: string
+  phase: string
+  detail: string
+  complexity: Complexity
+  highlights?: readonly Highlight[]
+  feedback?: Feedback
+}
+
+function buildFrames(
+  initialState: LinkedListState,
+  specs: readonly LinkedListFrameSpec[],
+): LinkedListFrame[] {
+  let nextFrameId = initialState.nextFrameId
+
+  return specs.map((spec) => {
+    const id = `linked-list-frame-${nextFrameId}`
+    const state: LinkedListState = { ...spec.state, nextFrameId: nextFrameId + 1 }
+    nextFrameId += 1
+
+    return {
+      id,
+      state,
+      operation: spec.operation,
+      phase: spec.phase,
+      detail: spec.detail,
+      complexity: spec.complexity,
+      highlights: [...(spec.highlights ?? [])],
+      feedback: spec.feedback ?? "neutral",
+    }
+  })
+}
+
+interface CreatedLinkedListNode {
+  node: LinkedListNode
+  nextNodeId: number
+  nextAddress: number
+}
+
+function createLinkedListNode(
+  state: LinkedListState,
+  value: number,
+  prevId: string | null,
+  nextId: string | null,
+): CreatedLinkedListNode {
+  return {
+    node: {
+      id: linkedListNodeId(state.nextNodeId),
+      value,
+      address: formatLinkedListAddress(state.nextAddress),
+      prevId,
+      nextId,
+    },
+    nextNodeId: state.nextNodeId + 1,
+    nextAddress: state.nextAddress + ADDRESS_STEP,
+  }
+}
+
+function nodeHighlight(nodeId: string, role: HighlightRole): Highlight {
+  return { target: "node", id: nodeId, role }
+}
+
+function edgeHighlight(
+  nodeId: string | null,
+  direction: LinkedListDirection,
+  role: HighlightRole,
+): Highlight[] {
+  return nodeId === null ? [] : [{ target: "edge", id: linkedListEdgeId(nodeId, direction), role }]
+}
+
+export function prependLinkedList(state: LinkedListState, value: number): LinkedListFrame[] {
+  const operation = "prepend"
+  const oldHead = linkedListHeadNode(state)
+  const { node, nextNodeId, nextAddress } = createLinkedListNode(
+    state,
+    value,
+    null,
+    oldHead?.id ?? null,
+  )
+  const nodes = [
+    node,
+    ...state.nodes.map((existing) =>
+      existing.id === oldHead?.id ? { ...existing, prevId: node.id } : existing,
+    ),
+  ]
+  const nextState: LinkedListState = {
+    ...state,
+    nodes,
+    headId: node.id,
+    tailId: state.tailId ?? node.id,
+    nextNodeId,
+    nextAddress,
+  }
+  const linkHighlights: Highlight[] = [
+    nodeHighlight(node.id, "insert"),
+    ...edgeHighlight(oldHead ? node.id : null, "next", "insert"),
+    ...edgeHighlight(oldHead?.id ?? null, "prev", "insert"),
+  ]
+  const complexity = constantTime("Prepending updates the head and at most one prev pointer.")
+
+  return buildFrames(state, [
+    {
+      state: nextState,
+      operation,
+      phase: "link",
+      detail: oldHead
+        ? `Link ${value} before ${oldHead.value} and update the head.`
+        : `Link ${value} as the first node.`,
+      complexity,
+      highlights: linkHighlights,
+    },
+    {
+      state: nextState,
+      operation,
+      phase: "complete",
+      detail: `Prepended ${value}; head is ${value}, size ${nextState.nodes.length}.`,
+      complexity,
+      highlights: [nodeHighlight(node.id, "active")],
+      feedback: "success",
+    },
+  ])
+}
+
+export function appendLinkedList(state: LinkedListState, value: number): LinkedListFrame[] {
+  const operation = "append"
+  const oldTail = linkedListTailNode(state)
+  const { node, nextNodeId, nextAddress } = createLinkedListNode(
+    state,
+    value,
+    oldTail?.id ?? null,
+    null,
+  )
+  const nodes = [
+    ...state.nodes.map((existing) =>
+      existing.id === oldTail?.id ? { ...existing, nextId: node.id } : existing,
+    ),
+    node,
+  ]
+  const nextState: LinkedListState = {
+    ...state,
+    nodes,
+    headId: state.headId ?? node.id,
+    tailId: node.id,
+    nextNodeId,
+    nextAddress,
+  }
+  const linkHighlights: Highlight[] = [
+    nodeHighlight(node.id, "insert"),
+    ...edgeHighlight(oldTail?.id ?? null, "next", "insert"),
+    ...edgeHighlight(oldTail ? node.id : null, "prev", "insert"),
+  ]
+  const complexity = constantTime("Appending updates the tail and at most one next pointer.")
+
+  return buildFrames(state, [
+    {
+      state: nextState,
+      operation,
+      phase: "link",
+      detail: oldTail
+        ? `Link ${value} after ${oldTail.value} and move the tail.`
+        : `Link ${value} as the first node.`,
+      complexity,
+      highlights: linkHighlights,
+    },
+    {
+      state: nextState,
+      operation,
+      phase: "complete",
+      detail: `Appended ${value}; tail is ${value}, size ${nextState.nodes.length}.`,
+      complexity,
+      highlights: [nodeHighlight(node.id, "active")],
+      feedback: "success",
+    },
+  ])
+}
+
+export function insertLinkedListAfter(
+  state: LinkedListState,
+  targetId: string,
+  value: number,
+): LinkedListFrame[] {
+  const operation = "insert-after"
+  const target = findLinkedListNode(state, targetId)
+
+  if (!target) {
+    return buildFrames(state, [
+      {
+        state,
+        operation,
+        phase: "missing",
+        detail: `Cannot insert after "${targetId}"; that node is not in the list.`,
+        complexity: constantTime("A failed insert stops as soon as the target is missing."),
+        feedback: "error",
+      },
+    ])
+  }
+
+  const oldNext = findLinkedListNode(state, target.nextId)
+  const { node, nextNodeId, nextAddress } = createLinkedListNode(
+    state,
+    value,
+    target.id,
+    target.nextId,
+  )
+  const relinked = state.nodes.map((existing) => {
+    if (existing.id === target.id) {
+      return { ...existing, nextId: node.id }
+    }
+
+    if (oldNext && existing.id === oldNext.id) {
+      return { ...existing, prevId: node.id }
+    }
+
+    return existing
+  })
+  const targetIndex = linkedListNodeIndex(state, target.id)
+  const nodes = [...relinked.slice(0, targetIndex + 1), node, ...relinked.slice(targetIndex + 1)]
+  const nextState: LinkedListState = {
+    ...state,
+    nodes,
+    tailId: oldNext ? state.tailId : node.id,
+    nextNodeId,
+    nextAddress,
+  }
+  const complexity = constantTime("Inserting after a known node rewires at most four pointers.")
+
+  return buildFrames(state, [
+    {
+      state,
+      operation,
+      phase: "locate",
+      detail: `Found ${target.value}; insert ${value} after it.`,
+      complexity,
+      highlights: [
+        nodeHighlight(target.id, "source"),
+        ...edgeHighlight(target.nextId ? target.id : null, "next", "source"),
+      ],
+    },
+    {
+      state: nextState,
+      operation,
+      phase: "link",
+      detail: oldNext
+        ? `Point ${value} between ${target.value} and ${oldNext.value}, then rewire their pointers.`
+        : `Point ${value} after ${target.value} and move the tail.`,
+      complexity,
+      highlights: [
+        nodeHighlight(node.id, "insert"),
+        ...edgeHighlight(node.id, "prev", "insert"),
+        ...edgeHighlight(oldNext ? node.id : null, "next", "insert"),
+        ...edgeHighlight(target.id, "next", "insert"),
+        ...edgeHighlight(oldNext?.id ?? null, "prev", "insert"),
+      ],
+    },
+    {
+      state: nextState,
+      operation,
+      phase: "complete",
+      detail: `Inserted ${value} after ${target.value}; size ${nodes.length}.`,
+      complexity,
+      highlights: [nodeHighlight(node.id, "active")],
+      feedback: "success",
+    },
+  ])
+}
+
+export function insertLinkedListBefore(
+  state: LinkedListState,
+  targetId: string,
+  value: number,
+): LinkedListFrame[] {
+  const operation = "insert-before"
+  const target = findLinkedListNode(state, targetId)
+
+  if (!target) {
+    return buildFrames(state, [
+      {
+        state,
+        operation,
+        phase: "missing",
+        detail: `Cannot insert before "${targetId}"; that node is not in the list.`,
+        complexity: constantTime("A failed insert stops as soon as the target is missing."),
+        feedback: "error",
+      },
+    ])
+  }
+
+  const oldPrev = findLinkedListNode(state, target.prevId)
+  const { node, nextNodeId, nextAddress } = createLinkedListNode(
+    state,
+    value,
+    target.prevId,
+    target.id,
+  )
+  const relinked = state.nodes.map((existing) => {
+    if (existing.id === target.id) {
+      return { ...existing, prevId: node.id }
+    }
+
+    if (oldPrev && existing.id === oldPrev.id) {
+      return { ...existing, nextId: node.id }
+    }
+
+    return existing
+  })
+  const targetIndex = linkedListNodeIndex(state, target.id)
+  const nodes = [...relinked.slice(0, targetIndex), node, ...relinked.slice(targetIndex)]
+  const nextState: LinkedListState = {
+    ...state,
+    nodes,
+    headId: oldPrev ? state.headId : node.id,
+    nextNodeId,
+    nextAddress,
+  }
+  const complexity = constantTime("Inserting before a known node rewires at most four pointers.")
+
+  return buildFrames(state, [
+    {
+      state,
+      operation,
+      phase: "locate",
+      detail: `Found ${target.value}; insert ${value} before it.`,
+      complexity,
+      highlights: [
+        nodeHighlight(target.id, "source"),
+        ...edgeHighlight(target.prevId ? target.id : null, "prev", "source"),
+      ],
+    },
+    {
+      state: nextState,
+      operation,
+      phase: "link",
+      detail: oldPrev
+        ? `Point ${value} between ${oldPrev.value} and ${target.value}, then rewire their pointers.`
+        : `Point ${value} before ${target.value} and move the head.`,
+      complexity,
+      highlights: [
+        nodeHighlight(node.id, "insert"),
+        ...edgeHighlight(oldPrev ? node.id : null, "prev", "insert"),
+        ...edgeHighlight(node.id, "next", "insert"),
+        ...edgeHighlight(target.id, "prev", "insert"),
+        ...edgeHighlight(oldPrev?.id ?? null, "next", "insert"),
+      ],
+    },
+    {
+      state: nextState,
+      operation,
+      phase: "complete",
+      detail: `Inserted ${value} before ${target.value}; size ${nodes.length}.`,
+      complexity,
+      highlights: [nodeHighlight(node.id, "active")],
+      feedback: "success",
+    },
+  ])
+}
+
+export function removeLinkedListNode(state: LinkedListState, targetId: string): LinkedListFrame[] {
+  const operation = "remove"
+  const target = findLinkedListNode(state, targetId)
+
+  if (!target) {
+    return buildFrames(state, [
+      {
+        state,
+        operation,
+        phase: "missing",
+        detail: `Cannot remove "${targetId}"; that node is not in the list.`,
+        complexity: constantTime("A failed removal stops as soon as the target is missing."),
+        feedback: "error",
+      },
+    ])
+  }
+
+  const index = linkedListNodeIndex(state, target.id)
+  const prev = state.nodes[index - 1] ?? null
+  const next = state.nodes[index + 1] ?? null
+  const nodes = state.nodes
+    .filter((node) => node.id !== target.id)
+    .map((node) => {
+      if (prev && node.id === prev.id) {
+        return { ...node, nextId: next?.id ?? null }
+      }
+
+      if (next && node.id === next.id) {
+        return { ...node, prevId: prev?.id ?? null }
+      }
+
+      return node
+    })
+  const nextState: LinkedListState = {
+    ...state,
+    nodes,
+    headId: state.headId === target.id ? (next?.id ?? null) : state.headId,
+    tailId: state.tailId === target.id ? (prev?.id ?? null) : state.tailId,
+  }
+  const complexity = constantTime("Removing a known node rewires at most four pointers.")
+  const unlinkDetail =
+    prev && next
+      ? `Connect ${prev.value} directly to ${next.value}.`
+      : next
+        ? `Move the head to ${next.value}.`
+        : prev
+          ? `Move the tail to ${prev.value}.`
+          : "Release the only node; the list becomes empty."
+
+  return buildFrames(state, [
+    {
+      state,
+      operation,
+      phase: "locate",
+      detail: `Found ${target.value}; unlink it from its neighbors.`,
+      complexity,
+      highlights: [
+        nodeHighlight(target.id, "remove"),
+        ...edgeHighlight(target.prevId ? target.id : null, "prev", "remove"),
+        ...edgeHighlight(target.nextId ? target.id : null, "next", "remove"),
+      ],
+    },
+    {
+      state: nextState,
+      operation,
+      phase: "unlink",
+      detail: unlinkDetail,
+      complexity,
+      highlights: [
+        ...(prev ? [nodeHighlight(prev.id, "active")] : []),
+        ...(next ? [nodeHighlight(next.id, "active")] : []),
+        ...edgeHighlight(prev?.id ?? null, "next", "insert"),
+        ...edgeHighlight(next?.id ?? null, "prev", "insert"),
+      ],
+    },
+    {
+      state: nextState,
+      operation,
+      phase: "complete",
+      detail:
+        nodes.length > 0
+          ? `Removed ${target.value}; ${nodes.length} nodes remain.`
+          : `Removed ${target.value}; the list is empty.`,
+      complexity,
+      feedback: "success",
+    },
+  ])
+}
+
+export function traverseLinkedList(state: LinkedListState): LinkedListFrame[] {
+  const operation = "traverse"
+  const complexity = linearTime("Traversal follows every next pointer from head to tail.")
+
+  if (isLinkedListEmpty(state)) {
+    return buildFrames(state, [
+      {
+        state,
+        operation,
+        phase: "empty",
+        detail: "Cannot traverse an empty list.",
+        complexity,
+        feedback: "warning",
+      },
+    ])
+  }
+
+  const specs: LinkedListFrameSpec[] = []
+  const visited = new Set<string>()
+  let current: LinkedListNode | null = linkedListHeadNode(state)
+  let step = 0
+
+  while (current && !visited.has(current.id)) {
+    visited.add(current.id)
+    const next = findLinkedListNode(state, current.nextId)
+
+    specs.push({
+      state,
+      operation,
+      phase: step === 0 ? "start" : "visit",
+      detail: `Visit ${current.value}; node ${step + 1} of ${state.nodes.length}.`,
+      complexity,
+      highlights: [
+        nodeHighlight(current.id, "active"),
+        ...edgeHighlight(next ? current.id : null, "next", "pointer"),
+      ],
+    })
+
+    current = next
+    step += 1
+  }
+
+  const reachedEnd = visited.size === state.nodes.length
+
+  specs.push({
+    state,
+    operation,
+    phase: "complete",
+    detail: reachedEnd
+      ? `Traversal visited all ${visited.size} nodes and reached the tail.`
+      : `Traversal stopped after ${visited.size} of ${state.nodes.length} nodes at a missing pointer.`,
+    complexity,
+    feedback: reachedEnd ? "success" : "warning",
+  })
+
+  return buildFrames(state, specs)
+}
+
 export const linkedListEngine = {
   createState: createLinkedListState,
   checkIntegrity: checkLinkedListIntegrity,
@@ -347,4 +858,10 @@ export const linkedListEngine = {
   head: linkedListHeadNode,
   tail: linkedListTailNode,
   find: findLinkedListNode,
+  prepend: prependLinkedList,
+  append: appendLinkedList,
+  insertAfter: insertLinkedListAfter,
+  insertBefore: insertLinkedListBefore,
+  remove: removeLinkedListNode,
+  traverse: traverseLinkedList,
 } as const
