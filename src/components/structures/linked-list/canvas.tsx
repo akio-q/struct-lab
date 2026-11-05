@@ -418,8 +418,11 @@ export function LinkedListCanvas({
                   </div>
                 ) : (
                   <AnimatePresence initial={false}>
-                    {state.nodes.map((node) => {
+                    {state.nodes.map((node, index) => {
                       const role = nodeRoles.get(node.id)
+                      const isFirst = index === 0
+                      const isLast = index === state.nodes.length - 1
+                      const enterX = isFirst ? -24 : isLast ? 24 : 0
 
                       return (
                         <motion.div
@@ -434,8 +437,10 @@ export function LinkedListCanvas({
                           data-testid={`linked-list-card-${node.id}`}
                           data-highlight={role}
                           layout={!reduceMotion}
-                          initial={reduceMotion ? false : { opacity: 0, scale: 0.9, y: 8 }}
-                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          initial={
+                            reduceMotion ? false : { opacity: 0, scale: 0.9, x: enterX, y: 8 }
+                          }
+                          animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
                           exit={reduceMotion ? undefined : { opacity: 0, scale: 0.9, y: 8 }}
                           transition={nodeTransition}
                           onLayoutAnimationComplete={measure}

@@ -401,11 +401,11 @@ feat(linked-list): render animated bidirectional SVG pointer links
 
 ### 4.3 Node operations
 
-- [ ] Prepend
-- [ ] Append
-- [ ] Insert after/before
-- [ ] Remove
-- [ ] Traversal
+- [x] Prepend
+- [x] Append
+- [x] Insert after/before
+- [x] Remove
+- [x] Traversal
 
 Commit:
 
