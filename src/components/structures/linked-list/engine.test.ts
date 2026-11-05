@@ -5,9 +5,11 @@ import {
   findLinkedListNode,
   formatLinkedListAddress,
   isLinkedListEmpty,
+  linkedListEdgeId,
   linkedListHeadNode,
   linkedListNodeId,
   linkedListNodeIndex,
+  linkedListLinks,
   linkedListSize,
   linkedListTailNode,
   type LinkedListNode,
@@ -267,6 +269,64 @@ describe("checkLinkedListIntegrity", () => {
     expect(integrity.status).toBe("cycle")
     expect(integrity.issues).toContainEqual(
       expect.objectContaining({ code: "cycle", nodeId: "linked-list-node-4" }),
+    )
+  })
+})
+
+describe("linkedListLinks", () => {
+  it("builds stable edge ids for both pointer directions", () => {
+    expect(linkedListEdgeId("linked-list-node-2", "next")).toBe("linked-list-node-2:next")
+    expect(linkedListEdgeId("linked-list-node-2", "prev")).toBe("linked-list-node-2:prev")
+  })
+
+  it("enumerates next and prev pointers in visual order", () => {
+    const state = createLinkedListState({ initialValues: [12, 7, 24] })
+
+    expect(linkedListLinks(state)).toEqual([
+      {
+        id: "linked-list-node-1:next",
+        nodeId: "linked-list-node-1",
+        targetId: "linked-list-node-2",
+        direction: "next",
+      },
+      {
+        id: "linked-list-node-2:next",
+        nodeId: "linked-list-node-2",
+        targetId: "linked-list-node-3",
+        direction: "next",
+      },
+      {
+        id: "linked-list-node-2:prev",
+        nodeId: "linked-list-node-2",
+        targetId: "linked-list-node-1",
+        direction: "prev",
+      },
+      {
+        id: "linked-list-node-3:prev",
+        nodeId: "linked-list-node-3",
+        targetId: "linked-list-node-2",
+        direction: "prev",
+      },
+    ])
+  })
+
+  it("returns no links for an empty list", () => {
+    expect(linkedListLinks(createLinkedListState())).toEqual([])
+  })
+
+  it("keeps pointers to missing nodes so broken links can render", () => {
+    const state = patchNode(
+      createLinkedListState({ initialValues: [1, 2] }),
+      "linked-list-node-1",
+      { nextId: "linked-list-node-404" },
+    )
+
+    expect(linkedListLinks(state)).toContainEqual(
+      expect.objectContaining({
+        nodeId: "linked-list-node-1",
+        targetId: "linked-list-node-404",
+        direction: "next",
+      }),
     )
   })
 })

@@ -387,11 +387,11 @@ feat(linked-list): add doubly linked list model with pointer integrity checks
 
 ### 4.2 SVG links
 
-- [ ] Node layout measurement
-- [ ] Bidirectional SVG paths
-- [ ] Arrowheads
-- [ ] Draw-in and retract animations
-- [ ] Layout transition measurement
+- [x] Node layout measurement
+- [x] Bidirectional SVG paths
+- [x] Arrowheads
+- [x] Draw-in and retract animations
+- [x] Layout transition measurement
 
 Commit:
 

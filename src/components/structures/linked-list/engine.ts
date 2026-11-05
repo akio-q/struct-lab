@@ -8,6 +8,15 @@ export interface LinkedListNode {
   nextId: string | null
 }
 
+export type LinkedListDirection = "prev" | "next"
+
+export interface LinkedListLinkRef {
+  id: string
+  nodeId: string
+  targetId: string
+  direction: LinkedListDirection
+}
+
 export type LinkedListIntegrityStatus = "ok" | "broken" | "cycle"
 
 export type LinkedListIntegrityCode =
@@ -52,6 +61,41 @@ const ADDRESS_STEP = 0x10
 
 export function linkedListNodeId(sequence: number): string {
   return `linked-list-node-${sequence}`
+}
+
+/** Stable highlight id for one node pointer, e.g. `linked-list-node-2:next`. */
+export function linkedListEdgeId(nodeId: string, direction: LinkedListDirection): string {
+  return `${nodeId}:${direction}`
+}
+
+/**
+ * Enumerates the pointers stored on each node in visual order. Targets are
+ * preserved even when missing so broken links can still be rendered.
+ */
+export function linkedListLinks(state: LinkedListState): LinkedListLinkRef[] {
+  const links: LinkedListLinkRef[] = []
+
+  for (const node of state.nodes) {
+    if (node.nextId !== null) {
+      links.push({
+        id: linkedListEdgeId(node.id, "next"),
+        nodeId: node.id,
+        targetId: node.nextId,
+        direction: "next",
+      })
+    }
+
+    if (node.prevId !== null) {
+      links.push({
+        id: linkedListEdgeId(node.id, "prev"),
+        nodeId: node.id,
+        targetId: node.prevId,
+        direction: "prev",
+      })
+    }
+  }
+
+  return links
 }
 
 export function formatLinkedListAddress(address: number): string {
@@ -298,6 +342,8 @@ export function checkLinkedListIntegrity(state: LinkedListState): LinkedListInte
 export const linkedListEngine = {
   createState: createLinkedListState,
   checkIntegrity: checkLinkedListIntegrity,
+  links: linkedListLinks,
+  edgeId: linkedListEdgeId,
   head: linkedListHeadNode,
   tail: linkedListTailNode,
   find: findLinkedListNode,
