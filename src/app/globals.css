@@ -106,7 +106,14 @@
     @apply h-full font-sans;
     color-scheme: dark;
     scroll-padding-top: 4.5rem;
+    scroll-padding-bottom: 10rem;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (width >= 64rem) {
+    html {
+      scroll-padding-bottom: 0;
+    }
   }
 
   body {

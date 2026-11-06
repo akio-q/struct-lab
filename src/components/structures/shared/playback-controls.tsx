@@ -101,7 +101,7 @@ export function PlaybackControls({
             onClick={() => onSpeedChange(value)}
             aria-pressed={speed === value}
             className={cn(
-              "h-6 touch-manipulation rounded-md border px-2 font-mono text-[10px] tabular-nums transition-colors",
+              "h-6 touch-manipulation rounded-md border px-2 font-mono text-[10px] tabular-nums transition-colors pointer-coarse:min-h-11 pointer-coarse:min-w-11",
               "focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none",
               speed === value
                 ? "border-primary/30 bg-primary/10 text-primary"
@@ -114,7 +114,7 @@ export function PlaybackControls({
         <span className="ml-auto text-[10px] text-muted-foreground">Speed</span>
       </div>
 
-      <p className="text-[10px] leading-relaxed text-pretty text-muted-foreground">
+      <p className="text-[10px] leading-relaxed text-pretty text-muted-foreground max-lg:hidden">
         Space play/pause · ← → step · Home reset · [ ] speed
       </p>
     </div>

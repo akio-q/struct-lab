@@ -17,7 +17,7 @@ export function AppHeader({ structureId, onStructureChange }: AppHeaderProps) {
       <div className="mx-auto flex h-14 w-full max-w-[1440px] items-center gap-3 px-4 sm:gap-5 sm:px-6">
         <Link
           href="/"
-          className="group flex shrink-0 touch-manipulation items-center gap-2.5 rounded-lg focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none"
+          className="group flex shrink-0 touch-manipulation items-center gap-2.5 rounded-lg focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none pointer-coarse:min-h-11"
         >
           <span className="flex size-7 items-center justify-center rounded-md border border-primary/25 bg-primary/10 text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-colors group-hover:border-primary/40 group-hover:bg-primary/15">
             <Boxes aria-hidden="true" className="size-4" />
@@ -38,7 +38,7 @@ export function AppHeader({ structureId, onStructureChange }: AppHeaderProps) {
           target="_blank"
           rel="noreferrer"
           aria-label="View StructLab on GitHub (opens in a new tab)"
-          className="ml-auto flex size-8 shrink-0 touch-manipulation items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-white/[0.05] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none"
+          className="ml-auto flex size-8 shrink-0 touch-manipulation items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-white/[0.05] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none pointer-coarse:size-11"
         >
           <CodeXml aria-hidden="true" className="size-4" />
         </a>

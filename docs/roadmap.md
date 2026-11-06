@@ -476,10 +476,10 @@ feat(a11y): add keyboard navigation and reduced-motion support
 
 ### 5.3 Responsive polish
 
-- [ ] Mobile inspector
-- [ ] Touch targets
-- [ ] Canvas overflow behavior
-- [ ] 360/768/1024/1440 checks
+- [x] Mobile inspector
+- [x] Touch targets
+- [x] Canvas overflow behavior
+- [x] 360/768/1024/1440 checks
 
 Commit:
 
