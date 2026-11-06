@@ -3,6 +3,7 @@ import {
   appendLinkedList,
   checkLinkedListIntegrity,
   createLinkedListState,
+  detachLinkedListPointer,
   findLinkedListNode,
   formatLinkedListAddress,
   insertLinkedListAfter,
@@ -16,7 +17,9 @@ import {
   linkedListSize,
   linkedListTailNode,
   prependLinkedList,
+  relinkLinkedListPointer,
   removeLinkedListNode,
+  repairLinkedListLinks,
   traverseLinkedList,
   type LinkedListFrame,
   type LinkedListNode,
@@ -780,5 +783,254 @@ describe("sequential linked list operations", () => {
 
     expect(state.nodes.map((node) => node.value)).toEqual([0, 7, 1, 3, 9, 4])
     expect(checkLinkedListIntegrity(state).status).toBe("ok")
+  })
+})
+
+describe("detachLinkedListPointer", () => {
+  it("detaches a next pointer and reports the broken link", () => {
+    const state = createLinkedListState({ initialValues: [1, 2, 3] })
+    const frames = detachLinkedListPointer(state, "linked-list-node-2", "next")
+    const next = finalState(frames)
+
+    expect(frames.map((frame) => frame.phase)).toEqual(["detach", "broken"])
+    expect(frames.map((frame) => frame.id)).toEqual(["linked-list-frame-0", "linked-list-frame-1"])
+    expect(frames.every((frame) => frame.feedback === "warning")).toBe(true)
+    expect(nodeSummary(next)).toEqual([
+      ["linked-list-node-1", 1, null, "linked-list-node-2"],
+      ["linked-list-node-2", 2, "linked-list-node-1", null],
+      ["linked-list-node-3", 3, "linked-list-node-2", null],
+    ])
+    expect(checkLinkedListIntegrity(next).status).toBe("broken")
+    expect(checkLinkedListIntegrity(next).issues.map((issue) => issue.code)).toEqual([
+      "next-mismatch",
+    ])
+    expect(frames[0].highlights).toContainEqual({
+      target: "edge",
+      id: "linked-list-node-2:next",
+      role: "remove",
+    })
+    expect(frames[0].detail).toContain("one-sided")
+    expect(frames[1].detail).toBe("Detached 2.next; 1 pointer issue detected.")
+    expect(next.nextFrameId).toBe(2)
+  })
+
+  it("detaches a prev pointer", () => {
+    const state = createLinkedListState({ initialValues: [1, 2, 3] })
+    const frames = detachLinkedListPointer(state, "linked-list-node-2", "prev")
+    const next = finalState(frames)
+
+    expect(next.nodes[1].prevId).toBeNull()
+    expect(checkLinkedListIntegrity(next).status).toBe("broken")
+    expect(frames[0].highlights).toContainEqual({
+      target: "edge",
+      id: "linked-list-node-2:prev",
+      role: "remove",
+    })
+  })
+
+  it("warns when the pointer is already null", () => {
+    const state = createLinkedListState({ initialValues: [1] })
+    const frames = detachLinkedListPointer(state, "linked-list-node-1", "next")
+
+    expect(frames).toHaveLength(1)
+    expect(frames[0]).toMatchObject({ phase: "noop", feedback: "warning" })
+    expect(frames[0].detail).toBe("The next pointer of 1 is already null.")
+    expect(frames[0].state.nodes).toBe(state.nodes)
+  })
+
+  it("reports a missing node without changing the list", () => {
+    const state = createLinkedListState({ initialValues: [1, 2] })
+    const frames = detachLinkedListPointer(state, "linked-list-node-404", "next")
+
+    expect(frames).toHaveLength(1)
+    expect(frames[0]).toMatchObject({ phase: "missing", feedback: "error" })
+    expect(frames[0].detail).toContain("not in the list")
+    expect(frames[0].state.nodes).toBe(state.nodes)
+  })
+})
+
+describe("relinkLinkedListPointer", () => {
+  it("relinks a detached pointer and restores integrity", () => {
+    const broken = finalState(
+      detachLinkedListPointer(
+        createLinkedListState({ initialValues: [1, 2, 3] }),
+        "linked-list-node-2",
+        "next",
+      ),
+    )
+    const frames = relinkLinkedListPointer(
+      broken,
+      "linked-list-node-2",
+      "next",
+      "linked-list-node-3",
+    )
+    const next = finalState(frames)
+
+    expect(frames.map((frame) => frame.phase)).toEqual(["relink", "complete"])
+    expect(frames[1].feedback).toBe("success")
+    expect(frames[1].detail).toBe("Relinked 2.next to 3; integrity restored.")
+    expect(nodeSummary(next)[1]).toEqual([
+      "linked-list-node-2",
+      2,
+      "linked-list-node-1",
+      "linked-list-node-3",
+    ])
+    expect(checkLinkedListIntegrity(next).status).toBe("ok")
+    expect(frames[0].highlights).toContainEqual({
+      target: "node",
+      id: "linked-list-node-2",
+      role: "source",
+    })
+    expect(frames[0].highlights).toContainEqual({
+      target: "node",
+      id: "linked-list-node-3",
+      role: "target",
+    })
+    expect(frames[1].highlights).toContainEqual({
+      target: "edge",
+      id: "linked-list-node-2:next",
+      role: "insert",
+    })
+  })
+
+  it("keeps a warning when the relink leaves other issues", () => {
+    const state = createLinkedListState({ initialValues: [1, 2, 3] })
+    const frames = relinkLinkedListPointer(
+      state,
+      "linked-list-node-1",
+      "next",
+      "linked-list-node-3",
+    )
+    const next = finalState(frames)
+
+    expect(frames.map((frame) => frame.phase)).toEqual(["relink", "warning"])
+    expect(frames[1].feedback).toBe("warning")
+    expect(frames[1].detail).toBe("Relinked 1.next to 3; 1 pointer issue still remains.")
+    expect(next.nodes[0].nextId).toBe("linked-list-node-3")
+    expect(checkLinkedListIntegrity(next).status).toBe("broken")
+    expect(frames[0].highlights).toContainEqual({
+      target: "edge",
+      id: "linked-list-node-1:next",
+      role: "remove",
+    })
+  })
+
+  it("reports a missing source or target without changing the list", () => {
+    const state = createLinkedListState({ initialValues: [1, 2] })
+    const missingSource = relinkLinkedListPointer(
+      state,
+      "linked-list-node-404",
+      "next",
+      "linked-list-node-2",
+    )
+    const missingTarget = relinkLinkedListPointer(
+      state,
+      "linked-list-node-1",
+      "next",
+      "linked-list-node-404",
+    )
+
+    for (const frames of [missingSource, missingTarget]) {
+      expect(frames).toHaveLength(1)
+      expect(frames[0]).toMatchObject({ phase: "missing", feedback: "error" })
+      expect(frames[0].detail).toContain("not in the list")
+      expect(frames[0].state.nodes).toBe(state.nodes)
+    }
+  })
+
+  it("warns when the pointer already points at the target", () => {
+    const state = createLinkedListState({ initialValues: [1, 2] })
+    const frames = relinkLinkedListPointer(
+      state,
+      "linked-list-node-1",
+      "next",
+      "linked-list-node-2",
+    )
+
+    expect(frames).toHaveLength(1)
+    expect(frames[0]).toMatchObject({ phase: "noop", feedback: "warning" })
+    expect(frames[0].detail).toBe("1.next already points to 2.")
+  })
+})
+
+describe("repairLinkedListLinks", () => {
+  it("rebuilds every pointer from visual order", () => {
+    const broken = finalState(
+      detachLinkedListPointer(
+        createLinkedListState({ initialValues: [1, 2, 3] }),
+        "linked-list-node-2",
+        "next",
+      ),
+    )
+    const frames = repairLinkedListLinks(broken)
+    const next = finalState(frames)
+
+    expect(frames.map((frame) => frame.phase)).toEqual(["scan", "repair"])
+    expect(frames[0].feedback).toBe("warning")
+    expect(frames[1].feedback).toBe("success")
+    expect(frames[0].detail).toBe("1 pointer issue found; rebuild links from visual order.")
+    expect(frames[1].detail).toBe("Repaired 1 pointer issue; every node matches visual order.")
+    expect(nodeSummary(next)).toEqual([
+      ["linked-list-node-1", 1, null, "linked-list-node-2"],
+      ["linked-list-node-2", 2, "linked-list-node-1", "linked-list-node-3"],
+      ["linked-list-node-3", 3, "linked-list-node-2", null],
+    ])
+    expect(next.headId).toBe("linked-list-node-1")
+    expect(next.tailId).toBe("linked-list-node-3")
+    expect(checkLinkedListIntegrity(next).status).toBe("ok")
+    expect(frames[0].highlights).toContainEqual({
+      target: "node",
+      id: "linked-list-node-2",
+      role: "pointer",
+    })
+    expect(frames[0].highlights).toHaveLength(1)
+    expect(frames[1].highlights).toEqual([])
+  })
+
+  it("repairs head and tail mismatches", () => {
+    const state = createLinkedListState({ initialValues: [1, 2, 3] })
+    const broken: LinkedListState = {
+      ...state,
+      headId: "linked-list-node-2",
+      tailId: "linked-list-node-1",
+    }
+    const frames = repairLinkedListLinks(broken)
+    const next = finalState(frames)
+
+    expect(frames[0].detail).toBe("2 pointer issues found; rebuild links from visual order.")
+    expect(next.headId).toBe("linked-list-node-1")
+    expect(next.tailId).toBe("linked-list-node-3")
+    expect(checkLinkedListIntegrity(next).status).toBe("ok")
+  })
+
+  it("reports when links are already intact", () => {
+    const state = createLinkedListState({ initialValues: [1, 2, 3] })
+    const frames = repairLinkedListLinks(state)
+
+    expect(frames).toHaveLength(1)
+    expect(frames[0]).toMatchObject({ phase: "noop", feedback: "warning" })
+    expect(frames[0].detail).toBe("Every pointer already matches visual order.")
+    expect(frames[0].state.nodes).toBe(state.nodes)
+  })
+})
+
+describe("sequential pointer surgery", () => {
+  it("continues frame ids across detach and relink", () => {
+    const state = createLinkedListState({ initialValues: [1, 2, 3] })
+    const detached = detachLinkedListPointer(state, "linked-list-node-2", "next")
+    const broken = finalState(detached)
+    const relinked = relinkLinkedListPointer(
+      broken,
+      "linked-list-node-2",
+      "next",
+      "linked-list-node-3",
+    )
+
+    expect(relinked.map((frame) => frame.id)).toEqual([
+      "linked-list-frame-2",
+      "linked-list-frame-3",
+    ])
+    expect(finalState(relinked).nextFrameId).toBe(4)
+    expect(checkLinkedListIntegrity(finalState(relinked)).status).toBe("ok")
   })
 })

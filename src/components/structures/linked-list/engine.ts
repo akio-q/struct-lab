@@ -17,6 +17,11 @@ export interface LinkedListNode {
 
 export type LinkedListDirection = "prev" | "next"
 
+export interface LinkedListPointerRef {
+  nodeId: string
+  direction: LinkedListDirection
+}
+
 export interface LinkedListLinkRef {
   id: string
   nodeId: string
@@ -850,6 +855,255 @@ export function traverseLinkedList(state: LinkedListState): LinkedListFrame[] {
   return buildFrames(state, specs)
 }
 
+function setLinkedListPointer(
+  state: LinkedListState,
+  nodeId: string,
+  direction: LinkedListDirection,
+  targetId: string | null,
+): LinkedListState {
+  return {
+    ...state,
+    nodes: state.nodes.map((node) => {
+      if (node.id !== nodeId) {
+        return node
+      }
+
+      return direction === "next" ? { ...node, nextId: targetId } : { ...node, prevId: targetId }
+    }),
+  }
+}
+
+function pointerTargetId(node: LinkedListNode, direction: LinkedListDirection): string | null {
+  return direction === "next" ? node.nextId : node.prevId
+}
+
+function issueSummary(count: number): string {
+  return `${count} pointer issue${count === 1 ? "" : "s"}`
+}
+
+export function detachLinkedListPointer(
+  state: LinkedListState,
+  nodeId: string,
+  direction: LinkedListDirection,
+): LinkedListFrame[] {
+  const operation = "detach"
+  const node = findLinkedListNode(state, nodeId)
+
+  if (!node) {
+    return buildFrames(state, [
+      {
+        state,
+        operation,
+        phase: "missing",
+        detail: `Cannot detach a pointer from "${nodeId}"; that node is not in the list.`,
+        complexity: constantTime("A failed detach stops as soon as the node is missing."),
+        feedback: "error",
+      },
+    ])
+  }
+
+  const targetId = pointerTargetId(node, direction)
+
+  if (targetId === null) {
+    return buildFrames(state, [
+      {
+        state,
+        operation,
+        phase: "noop",
+        detail: `The ${direction} pointer of ${node.value} is already null.`,
+        complexity: constantTime("Checking an already-null pointer takes constant time."),
+        feedback: "warning",
+      },
+    ])
+  }
+
+  const nextState = setLinkedListPointer(state, nodeId, direction, null)
+  const issueCount = checkLinkedListIntegrity(nextState).issues.length
+  const complexity = constantTime("Detaching one pointer clears a single link.")
+
+  return buildFrames(state, [
+    {
+      state,
+      operation,
+      phase: "detach",
+      detail: `Detach ${node.value}.${direction}; the link becomes one-sided.`,
+      complexity,
+      highlights: [
+        { target: "node", id: node.id, role: "active" },
+        { target: "edge", id: linkedListEdgeId(node.id, direction), role: "remove" },
+      ],
+      feedback: "warning",
+    },
+    {
+      state: nextState,
+      operation,
+      phase: "broken",
+      detail: `Detached ${node.value}.${direction}; ${issueSummary(issueCount)} detected.`,
+      complexity,
+      highlights: [{ target: "node", id: node.id, role: "active" }],
+      feedback: "warning",
+    },
+  ])
+}
+
+export function relinkLinkedListPointer(
+  state: LinkedListState,
+  nodeId: string,
+  direction: LinkedListDirection,
+  targetId: string,
+): LinkedListFrame[] {
+  const operation = "relink"
+  const node = findLinkedListNode(state, nodeId)
+
+  if (!node) {
+    return buildFrames(state, [
+      {
+        state,
+        operation,
+        phase: "missing",
+        detail: `Cannot relink a pointer from "${nodeId}"; that node is not in the list.`,
+        complexity: constantTime("A failed relink stops as soon as the node is missing."),
+        feedback: "error",
+      },
+    ])
+  }
+
+  const target = findLinkedListNode(state, targetId)
+
+  if (!target) {
+    return buildFrames(state, [
+      {
+        state,
+        operation,
+        phase: "missing",
+        detail: `Cannot relink ${node.value}.${direction} to "${targetId}"; that node is not in the list.`,
+        complexity: constantTime("A failed relink stops as soon as the target is missing."),
+        feedback: "error",
+      },
+    ])
+  }
+
+  const currentTargetId = pointerTargetId(node, direction)
+
+  if (currentTargetId === targetId) {
+    return buildFrames(state, [
+      {
+        state,
+        operation,
+        phase: "noop",
+        detail: `${node.value}.${direction} already points to ${target.value}.`,
+        complexity: constantTime("Checking an existing link takes constant time."),
+        feedback: "warning",
+      },
+    ])
+  }
+
+  const nextState = setLinkedListPointer(state, nodeId, direction, targetId)
+  const integrity = checkLinkedListIntegrity(nextState)
+  const issueCount = integrity.issues.length
+  const complexity = constantTime("Relinking one pointer rewires a single link.")
+  const oldEdgeHighlights: Highlight[] =
+    currentTargetId === null
+      ? []
+      : [{ target: "edge", id: linkedListEdgeId(node.id, direction), role: "remove" }]
+
+  return buildFrames(state, [
+    {
+      state,
+      operation,
+      phase: "relink",
+      detail: `Relink ${node.value}.${direction} to ${target.value}.`,
+      complexity,
+      highlights: [
+        { target: "node", id: node.id, role: "source" },
+        { target: "node", id: target.id, role: "target" },
+        ...oldEdgeHighlights,
+      ],
+    },
+    {
+      state: nextState,
+      operation,
+      phase: integrity.status === "ok" ? "complete" : "warning",
+      detail:
+        integrity.status === "ok"
+          ? `Relinked ${node.value}.${direction} to ${target.value}; integrity restored.`
+          : `Relinked ${node.value}.${direction} to ${target.value}; ${issueSummary(issueCount)} still ${
+              issueCount === 1 ? "remains" : "remain"
+            }.`,
+      complexity,
+      highlights: [
+        { target: "node", id: node.id, role: "source" },
+        { target: "node", id: target.id, role: "target" },
+        { target: "edge", id: linkedListEdgeId(node.id, direction), role: "insert" },
+      ],
+      feedback: integrity.status === "ok" ? "success" : "warning",
+    },
+  ])
+}
+
+export function repairLinkedListLinks(state: LinkedListState): LinkedListFrame[] {
+  const operation = "repair"
+  const integrity = checkLinkedListIntegrity(state)
+
+  if (integrity.status === "ok") {
+    return buildFrames(state, [
+      {
+        state,
+        operation,
+        phase: "noop",
+        detail: "Every pointer already matches visual order.",
+        complexity: linearTime("Repair scans every node before rebuilding links."),
+        feedback: "warning",
+      },
+    ])
+  }
+
+  const nodes = state.nodes.map((node, index) => ({
+    ...node,
+    prevId: state.nodes[index - 1]?.id ?? null,
+    nextId: state.nodes[index + 1]?.id ?? null,
+  }))
+  const nextState: LinkedListState = {
+    ...state,
+    nodes,
+    headId: nodes[0]?.id ?? null,
+    tailId: nodes[nodes.length - 1]?.id ?? null,
+  }
+  const complexity = linearTime("Repair rewires every node from visual order.")
+  const issueNodes = [
+    ...new Set(
+      integrity.issues
+        .map((issue) => issue.nodeId)
+        .filter((nodeId): nodeId is string => nodeId !== null),
+    ),
+  ]
+
+  return buildFrames(state, [
+    {
+      state,
+      operation,
+      phase: "scan",
+      detail: `${issueSummary(integrity.issues.length)} found; rebuild links from visual order.`,
+      complexity,
+      highlights: issueNodes.map<Highlight>((nodeId) => ({
+        target: "node",
+        id: nodeId,
+        role: "pointer",
+      })),
+      feedback: "warning",
+    },
+    {
+      state: nextState,
+      operation,
+      phase: "repair",
+      detail: `Repaired ${issueSummary(integrity.issues.length)}; every node matches visual order.`,
+      complexity,
+      highlights: [],
+      feedback: "success",
+    },
+  ])
+}
+
 export const linkedListEngine = {
   createState: createLinkedListState,
   checkIntegrity: checkLinkedListIntegrity,
@@ -864,4 +1118,7 @@ export const linkedListEngine = {
   insertBefore: insertLinkedListBefore,
   remove: removeLinkedListNode,
   traverse: traverseLinkedList,
+  detach: detachLinkedListPointer,
+  relink: relinkLinkedListPointer,
+  repair: repairLinkedListLinks,
 } as const

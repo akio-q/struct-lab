@@ -1,11 +1,15 @@
 "use client"
 
 import { AnimatePresence, motion, useReducedMotion, type Transition } from "framer-motion"
+import { TriangleAlert } from "lucide-react"
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import {
+  checkLinkedListIntegrity,
+  findLinkedListNode,
   linkedListLinks,
   type LinkedListDirection,
   type LinkedListNode,
+  type LinkedListPointerRef,
   type LinkedListState,
 } from "@/components/structures/linked-list/engine"
 import {
@@ -20,6 +24,10 @@ export interface LinkedListCanvasProps {
   highlights?: readonly Highlight[]
   feedback?: Feedback
   className?: string
+  selectedPointer?: LinkedListPointerRef | null
+  onPointerSelect?: (pointer: LinkedListPointerRef) => void
+  onRelinkTarget?: (nodeId: string) => void
+  onRepair?: () => void
 }
 
 export const LINKED_LIST_NODE_WIDTH = 112
@@ -29,6 +37,7 @@ export const LINKED_LIST_NODE_GAP = 56
 const LINK_LANE_OFFSET = 12
 const LINK_ARROW_GAP = 6
 const LINK_MIN_CONTROL = 16
+const LINK_LOOP_HEIGHT = 24
 const EMPTY_HIGHLIGHTS: readonly Highlight[] = []
 
 type LinkTone = HighlightRole | "default"
@@ -97,6 +106,22 @@ export function buildLinkedListPath(
   if (direction === "next") {
     const startX = source.x + source.width
     const startY = sourceY - LINK_LANE_OFFSET
+
+    // A next pointer that points left is a cycle or a manual relink. Route it
+    // over the nodes so it stays visible instead of stretching off-canvas.
+    if (target.x < source.x) {
+      const endX = target.x + target.width + LINK_ARROW_GAP
+      const endY = targetY - LINK_LANE_OFFSET
+      const loopY = Math.min(source.y, target.y) - LINK_LOOP_HEIGHT
+
+      return [
+        `M ${roundCoordinate(startX)} ${roundCoordinate(startY)}`,
+        `C ${roundCoordinate(startX)} ${roundCoordinate(loopY)},`,
+        `${roundCoordinate(endX)} ${roundCoordinate(loopY)},`,
+        `${roundCoordinate(endX)} ${roundCoordinate(endY)}`,
+      ].join(" ")
+    }
+
     const endX = target.x - LINK_ARROW_GAP
     const endY = targetY - LINK_LANE_OFFSET
     const curve = Math.max(LINK_MIN_CONTROL, Math.abs(endX - startX) / 2)
@@ -111,6 +136,22 @@ export function buildLinkedListPath(
 
   const startX = source.x
   const startY = sourceY + LINK_LANE_OFFSET
+
+  // A prev pointer that points right is likewise abnormal; route it under the
+  // nodes so the loop remains on screen.
+  if (target.x > source.x) {
+    const endX = target.x - LINK_ARROW_GAP
+    const endY = targetY + LINK_LANE_OFFSET
+    const loopY = Math.max(source.y + source.height, target.y + target.height) + LINK_LOOP_HEIGHT
+
+    return [
+      `M ${roundCoordinate(startX)} ${roundCoordinate(startY)}`,
+      `C ${roundCoordinate(startX)} ${roundCoordinate(loopY)},`,
+      `${roundCoordinate(endX)} ${roundCoordinate(loopY)},`,
+      `${roundCoordinate(endX)} ${roundCoordinate(endY)}`,
+    ].join(" ")
+  }
+
   const endX = target.x + target.width + LINK_ARROW_GAP
   const endY = targetY + LINK_LANE_OFFSET
   const curve = Math.max(LINK_MIN_CONTROL, Math.abs(startX - endX) / 2)
@@ -203,9 +244,14 @@ export function LinkedListCanvas({
   highlights = EMPTY_HIGHLIGHTS,
   feedback = "neutral",
   className,
+  selectedPointer = null,
+  onPointerSelect,
+  onRelinkTarget,
+  onRepair,
 }: LinkedListCanvasProps) {
   const reduceMotion = useReducedMotion()
   const markerPrefix = useId().replace(/[^a-zA-Z0-9_-]/g, "")
+  const descriptionId = useId()
   const containerRef = useRef<HTMLDivElement | null>(null)
   const nodeElements = useRef(new Map<string, HTMLDivElement>())
   const [boxes, setBoxes] = useState<LinkedListNodeBox[]>(() => layoutLinkedListNodes(state.nodes))
@@ -274,8 +320,53 @@ export function LinkedListCanvas({
   }, [measure])
 
   const links = useMemo(() => buildLinkedListLinks(state, boxes), [state, boxes])
+  const boxesById = useMemo(() => new Map(boxes.map((box) => [box.id, box])), [boxes])
+  const hasLoopAbove = useMemo(
+    () =>
+      links.some((link) => {
+        if (link.direction !== "next") {
+          return false
+        }
+
+        const source = boxesById.get(link.nodeId)
+        const target = boxesById.get(link.targetId)
+
+        return Boolean(source && target && target.x < source.x)
+      }),
+    [links, boxesById],
+  )
+  const hasLoopBelow = useMemo(
+    () =>
+      links.some((link) => {
+        if (link.direction !== "prev") {
+          return false
+        }
+
+        const source = boxesById.get(link.nodeId)
+        const target = boxesById.get(link.targetId)
+
+        return Boolean(source && target && target.x > source.x)
+      }),
+    [links, boxesById],
+  )
   const nodeRoles = useMemo(() => resolveTargetRoles(highlights, "node"), [highlights])
   const linkRoles = useMemo(() => resolveTargetRoles(highlights, "edge"), [highlights])
+  const integrity = useMemo(() => checkLinkedListIntegrity(state), [state])
+
+  const selectedNode = selectedPointer ? findLinkedListNode(state, selectedPointer.nodeId) : null
+  const selectedTargetId =
+    selectedNode && selectedPointer
+      ? selectedPointer.direction === "next"
+        ? selectedNode.nextId
+        : selectedNode.prevId
+      : null
+  const selectedTarget = findLinkedListNode(state, selectedTargetId)
+  const selectedTargetLabel = selectedTarget
+    ? String(selectedTarget.value)
+    : selectedTargetId
+      ? "missing"
+      : "null"
+  const relinking = Boolean(selectedPointer && selectedNode && onRelinkTarget)
 
   const linkTransition: Transition = reduceMotion
     ? { duration: 0 }
@@ -285,10 +376,19 @@ export function LinkedListCanvas({
     ? { duration: 0 }
     : { type: "spring", stiffness: 420, damping: 32, mass: 0.6 }
 
-  const status = isEmpty ? "empty" : "linked"
+  const status = isEmpty ? "empty" : integrity.status === "ok" ? "linked" : integrity.status
+  const statusClassName = isEmpty
+    ? "border-border/70 bg-white/[0.03] text-muted-foreground"
+    : integrity.status === "ok"
+      ? "border-success/25 bg-success/10 text-success"
+      : "border-destructive/40 bg-destructive/10 text-destructive"
   const hint = isEmpty
     ? "Empty list — nodes will appear here with prev and next pointers."
-    : "Next pointers run above the nodes; prev pointers run below."
+    : selectedPointer && selectedNode
+      ? `Selected ${selectedNode.value}.${selectedPointer.direction} → ${selectedTargetLabel} — ${
+          onRelinkTarget ? "click a node to relink it" : "select another pointer"
+        }.`
+      : "Next pointers run above the nodes; prev pointers run below."
 
   return (
     <div
@@ -315,9 +415,7 @@ export function LinkedListCanvas({
             data-testid="linked-list-status"
             className={cn(
               "inline-flex items-center rounded-md border px-1.5 py-0.5 font-mono text-[10px] tracking-wide uppercase",
-              isEmpty
-                ? "border-border/70 bg-white/[0.03] text-muted-foreground"
-                : "border-success/25 bg-success/10 text-success",
+              statusClassName,
             )}
           >
             {status}
@@ -331,10 +429,44 @@ export function LinkedListCanvas({
         </div>
       </div>
 
+      {integrity.status !== "ok" ? (
+        <div
+          data-testid="linked-list-integrity-warning"
+          data-integrity={integrity.status}
+          role="status"
+          className="flex items-start gap-2 border-b border-destructive/30 bg-destructive/[0.06] px-3 py-2"
+        >
+          <TriangleAlert aria-hidden="true" className="mt-0.5 size-3.5 shrink-0 text-destructive" />
+          <div className="min-w-0">
+            <p className="font-mono text-[10px] tracking-[0.12em] text-destructive uppercase">
+              {integrity.status === "cycle" ? "Cycle detected" : "Broken links"}
+            </p>
+            <p className="mt-0.5 text-[11px] text-pretty text-muted-foreground">
+              {integrity.issues[0]?.detail}
+              {integrity.issues.length > 1
+                ? ` (+${integrity.issues.length - 1} more issue${
+                    integrity.issues.length - 1 === 1 ? "" : "s"
+                  })`
+                : ""}
+            </p>
+          </div>
+          {onRepair ? (
+            <button
+              type="button"
+              onClick={onRepair}
+              className="ml-auto shrink-0 rounded-md border border-destructive/40 px-2 py-1 font-mono text-[10px] tracking-[0.08em] text-destructive uppercase transition-colors hover:bg-destructive/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            >
+              Repair links
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+
       <div className="p-3">
         <div
           data-testid="linked-list-stage"
           data-feedback={feedback}
+          data-integrity={integrity.status}
           className={cn(
             "rounded-xl border p-3 transition-[border-color,background-color] duration-150",
             feedback === "error"
@@ -345,10 +477,21 @@ export function LinkedListCanvas({
           <div
             role="region"
             aria-label="Linked list canvas"
+            aria-describedby={descriptionId}
             tabIndex={0}
-            className="overflow-x-auto overscroll-x-contain rounded-lg focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none"
+            className={cn(
+              "overflow-x-auto overscroll-x-contain rounded-lg focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none",
+              hasLoopAbove && "pt-8",
+              hasLoopBelow && "pb-8",
+            )}
           >
             <div ref={containerRef} className="relative mx-auto w-max">
+              <p
+                id={descriptionId}
+                role="img"
+                aria-label={describeLinkedList(state)}
+                className="sr-only"
+              />
               <svg
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-0 size-full overflow-visible"
@@ -402,8 +545,6 @@ export function LinkedListCanvas({
               </svg>
 
               <div
-                role="img"
-                aria-label={describeLinkedList(state)}
                 className="relative flex items-center"
                 style={{
                   gap: `${LINKED_LIST_NODE_GAP}px`,
@@ -423,6 +564,14 @@ export function LinkedListCanvas({
                       const isFirst = index === 0
                       const isLast = index === state.nodes.length - 1
                       const enterX = isFirst ? -24 : isLast ? 24 : 0
+                      const isSelectedSource = selectedPointer?.nodeId === node.id
+                      const isNextSelected =
+                        selectedPointer?.nodeId === node.id && selectedPointer.direction === "next"
+                      const isPrevSelected =
+                        selectedPointer?.nodeId === node.id && selectedPointer.direction === "prev"
+                      const nextTarget = findLinkedListNode(state, node.nextId)
+                      const prevTarget = findLinkedListNode(state, node.prevId)
+                      const isCurrentTarget = selectedTargetId === node.id
 
                       return (
                         <motion.div
@@ -447,6 +596,7 @@ export function LinkedListCanvas({
                           className={cn(
                             "relative flex shrink-0 flex-col items-center justify-center rounded-xl border bg-white/[0.04] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-[background-color,border-color,box-shadow] duration-150",
                             role ? highlightRoleMeta[role].slotClassName : "border-border",
+                            isSelectedSource && "ring-1 ring-primary/40",
                           )}
                           style={{
                             width: `${LINKED_LIST_NODE_WIDTH}px`,
@@ -465,16 +615,75 @@ export function LinkedListCanvas({
                             </span>
                           ) : null}
 
-                          <span
-                            aria-hidden="true"
-                            className="absolute right-0 size-1.5 translate-x-1/2 -translate-y-1/2 rounded-full bg-muted-foreground/70"
-                            style={{ top: `calc(50% - ${LINK_LANE_OFFSET}px)` }}
-                          />
-                          <span
-                            aria-hidden="true"
-                            className="absolute left-0 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-muted-foreground/70"
-                            style={{ top: `calc(50% + ${LINK_LANE_OFFSET}px)` }}
-                          />
+                          {onPointerSelect ? (
+                            <>
+                              <button
+                                type="button"
+                                aria-label={`next pointer of ${node.value} ${
+                                  nextTarget ? `to ${nextTarget.value}` : "is null"
+                                }`}
+                                aria-pressed={isNextSelected}
+                                data-testid={`linked-list-pointer-${node.id}:next`}
+                                data-selected={isNextSelected ? "true" : undefined}
+                                onClick={() =>
+                                  onPointerSelect({ nodeId: node.id, direction: "next" })
+                                }
+                                className="group absolute right-0 z-10 flex size-6 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                                style={{ top: `calc(50% - ${LINK_LANE_OFFSET}px)` }}
+                              >
+                                <span
+                                  aria-hidden="true"
+                                  className={cn(
+                                    "size-3 rounded-full border transition-[background-color,border-color,box-shadow] duration-150",
+                                    isNextSelected
+                                      ? "border-primary bg-primary ring-2 ring-primary/40"
+                                      : nextTarget
+                                        ? "border-muted-foreground/70 bg-muted-foreground/70 group-hover:border-primary group-hover:bg-primary"
+                                        : "border-muted-foreground/60 bg-background group-hover:border-primary group-hover:bg-primary/40",
+                                  )}
+                                />
+                              </button>
+                              <button
+                                type="button"
+                                aria-label={`prev pointer of ${node.value} ${
+                                  prevTarget ? `to ${prevTarget.value}` : "is null"
+                                }`}
+                                aria-pressed={isPrevSelected}
+                                data-testid={`linked-list-pointer-${node.id}:prev`}
+                                data-selected={isPrevSelected ? "true" : undefined}
+                                onClick={() =>
+                                  onPointerSelect({ nodeId: node.id, direction: "prev" })
+                                }
+                                className="group absolute left-0 z-10 flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                                style={{ top: `calc(50% + ${LINK_LANE_OFFSET}px)` }}
+                              >
+                                <span
+                                  aria-hidden="true"
+                                  className={cn(
+                                    "size-3 rounded-full border transition-[background-color,border-color,box-shadow] duration-150",
+                                    isPrevSelected
+                                      ? "border-primary bg-primary ring-2 ring-primary/40"
+                                      : prevTarget
+                                        ? "border-muted-foreground/70 bg-muted-foreground/70 group-hover:border-primary group-hover:bg-primary"
+                                        : "border-muted-foreground/60 bg-background group-hover:border-primary group-hover:bg-primary/40",
+                                  )}
+                                />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <span
+                                aria-hidden="true"
+                                className="absolute right-0 size-1.5 translate-x-1/2 -translate-y-1/2 rounded-full bg-muted-foreground/70"
+                                style={{ top: `calc(50% - ${LINK_LANE_OFFSET}px)` }}
+                              />
+                              <span
+                                aria-hidden="true"
+                                className="absolute left-0 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-muted-foreground/70"
+                                style={{ top: `calc(50% + ${LINK_LANE_OFFSET}px)` }}
+                              />
+                            </>
+                          )}
 
                           <span
                             className="max-w-full truncate px-3 text-center font-mono text-base font-medium text-foreground tabular-nums"
@@ -482,6 +691,24 @@ export function LinkedListCanvas({
                           >
                             {node.value}
                           </span>
+
+                          {relinking ? (
+                            <button
+                              type="button"
+                              aria-label={`Relink selected pointer to ${node.value}`}
+                              data-testid={`linked-list-relink-${node.id}`}
+                              disabled={isSelectedSource || isCurrentTarget}
+                              onClick={() => onRelinkTarget?.(node.id)}
+                              className={cn(
+                                "absolute inset-x-2 bottom-1 rounded-md border px-1 py-0.5 font-mono text-[9px] leading-none tracking-[0.08em] uppercase transition-colors",
+                                isSelectedSource || isCurrentTarget
+                                  ? "cursor-not-allowed border-border/50 text-muted-foreground/50"
+                                  : "border-primary/40 text-primary hover:border-primary hover:bg-primary/10",
+                              )}
+                            >
+                              {isCurrentTarget ? "linked" : "relink"}
+                            </button>
+                          ) : null}
                         </motion.div>
                       )
                     })}
