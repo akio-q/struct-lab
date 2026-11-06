@@ -428,10 +428,10 @@ feat(linked-list): add interactive pointer detachment and relinking
 
 ### 4.5 Integration
 
-- [ ] Address display
-- [ ] Inspector
-- [ ] Playback
-- [ ] Empty state
+- [x] Address display
+- [x] Inspector
+- [x] Playback
+- [x] Empty state
 
 Commit:
 

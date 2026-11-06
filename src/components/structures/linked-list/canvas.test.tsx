@@ -150,6 +150,15 @@ describe("LinkedListCanvas", () => {
     }
   })
 
+  it("renders the address on every node card", () => {
+    const state = createLinkedListState({ initialValues: [12, 7, 24] })
+    renderCanvas(state)
+
+    for (const node of state.nodes) {
+      expect(screen.getByTestId(`linked-list-address-${node.id}`)).toHaveTextContent(node.address)
+    }
+  })
+
   it("renders an empty state without paths", () => {
     renderCanvas(createLinkedListState())
 
