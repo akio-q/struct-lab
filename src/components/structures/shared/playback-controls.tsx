@@ -2,10 +2,8 @@
 
 import { Pause, Play, RotateCcw, StepBack, StepForward } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import type { PlaybackStatus, Speed } from "@/lib/structures/types"
+import { PLAYBACK_SPEEDS, type PlaybackStatus, type Speed } from "@/lib/structures/types"
 import { cn } from "@/lib/utils"
-
-export const PLAYBACK_SPEEDS = [0.5, 1, 1.5, 2] as const satisfies readonly Speed[]
 
 export interface PlaybackControlsProps {
   status: PlaybackStatus
@@ -48,7 +46,8 @@ export function PlaybackControls({
           onClick={onStepBack}
           disabled={!canStepBack}
           aria-label="Step back"
-          title="Step back"
+          aria-keyshortcuts="ArrowLeft"
+          title="Step back (←)"
         >
           <StepBack aria-hidden="true" />
         </Button>
@@ -59,7 +58,8 @@ export function PlaybackControls({
           onClick={onTogglePlay}
           disabled={!hasFrames}
           aria-label={isPlaying ? "Pause" : "Play"}
-          title={isPlaying ? "Pause" : "Play"}
+          aria-keyshortcuts="Space"
+          title={isPlaying ? "Pause (Space)" : "Play (Space)"}
         >
           {isPlaying ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />}
         </Button>
@@ -70,7 +70,8 @@ export function PlaybackControls({
           onClick={onStepForward}
           disabled={!canStepForward}
           aria-label="Step forward"
-          title="Step forward"
+          aria-keyshortcuts="ArrowRight"
+          title="Step forward (→)"
         >
           <StepForward aria-hidden="true" />
         </Button>
@@ -81,7 +82,8 @@ export function PlaybackControls({
           onClick={onReset}
           disabled={!hasFrames}
           aria-label="Reset trace"
-          title="Reset trace"
+          aria-keyshortcuts="Home"
+          title="Reset trace (Home)"
         >
           <RotateCcw aria-hidden="true" />
         </Button>
@@ -115,6 +117,10 @@ export function PlaybackControls({
         ))}
         <span className="ml-auto text-[10px] text-muted-foreground">Speed</span>
       </div>
+
+      <p className="text-[10px] leading-relaxed text-pretty text-muted-foreground">
+        Space play/pause · ← → step · Home reset · [ ] speed
+      </p>
     </div>
   )
 }

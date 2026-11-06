@@ -175,6 +175,8 @@ export interface Trace<S> {
 
 The trace player owns playback status, speed, cursor movement, reset, and automatic pause when a panel becomes inactive.
 
+Keyboard shortcuts apply only to the active panel and never while an editable control has focus. Space toggles play/pause, the left and right arrows step backward and forward, Home resets the trace, and `[` / `]` change playback speed.
+
 ## Structure models
 
 ### Array

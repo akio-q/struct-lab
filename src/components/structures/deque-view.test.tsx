@@ -242,4 +242,12 @@ describe("DequeView", () => {
     expect(screen.getByLabelText("Value")).toHaveFocus()
     expect(screen.getByText(/No steps yet/)).toBeInTheDocument()
   })
+
+  it("changes playback speed with the bracket shortcut", () => {
+    render(<DequeView />)
+
+    fireEvent.keyDown(window, { code: "BracketRight", key: "]" })
+
+    expect(screen.getByRole("button", { name: "1.5×" })).toHaveAttribute("aria-pressed", "true")
+  })
 })

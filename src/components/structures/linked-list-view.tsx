@@ -31,6 +31,7 @@ import { StageFrame } from "@/components/structures/shared/stage-frame"
 import { StepLog } from "@/components/structures/shared/step-log"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts"
 import { useTracePlayer } from "@/hooks/use-trace-player"
 import type { Complexity, PointerEntry } from "@/lib/structures/types"
 import { cn } from "@/lib/utils"
@@ -68,6 +69,15 @@ export function LinkedListView({ active = true }: LinkedListViewProps) {
   const valueInputRef = useRef<HTMLInputElement>(null)
   const reduceMotion = useReducedMotion()
   const player = useTracePlayer<LinkedListState>({ active, autoPlay: !reduceMotion })
+  useKeyboardShortcuts({
+    active,
+    speed: player.speed,
+    onTogglePlay: player.togglePlay,
+    onStepBack: player.stepBack,
+    onStepForward: player.stepForward,
+    onReset: handleReset,
+    onSpeedChange: player.setSpeed,
+  })
   const state = player.frame?.state ?? initialState
   const valueId = useId()
   const targetId = useId()

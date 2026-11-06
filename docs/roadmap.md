@@ -450,10 +450,10 @@ git push origin main --tags
 
 ### 5.1 Playback
 
-- [ ] Autoplay
-- [ ] Speed control
-- [ ] Keyboard shortcuts
-- [ ] Reset behavior
+- [x] Autoplay
+- [x] Speed control
+- [x] Keyboard shortcuts
+- [x] Reset behavior
 
 Commit:
 

@@ -152,4 +152,25 @@ describe("StackView", () => {
     expect(screen.getByLabelText("Value")).toHaveFocus()
     expect(screen.getByText(/No steps yet/)).toBeInTheDocument()
   })
+
+  it("steps and resets the trace with keyboard shortcuts", () => {
+    render(<StackView />)
+
+    fireEvent.click(screen.getByRole("button", { name: "Push" }))
+    expect(screen.getByText("Step 1 of 2")).toBeInTheDocument()
+
+    fireEvent.keyDown(window, { key: "ArrowRight" })
+    expect(screen.getByText("Step 2 of 2")).toBeInTheDocument()
+
+    fireEvent.keyDown(window, { key: "Home" })
+    expect(screen.getByText("Step 1 of 2")).toBeInTheDocument()
+  })
+
+  it("changes playback speed with the bracket shortcut", () => {
+    render(<StackView />)
+
+    fireEvent.keyDown(window, { code: "BracketRight", key: "]" })
+
+    expect(screen.getByRole("button", { name: "1.5×" })).toHaveAttribute("aria-pressed", "true")
+  })
 })
