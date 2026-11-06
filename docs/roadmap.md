@@ -463,10 +463,10 @@ feat(playback): add autoplay, speed control, and keyboard shortcuts
 
 ### 5.2 Accessibility
 
-- [ ] Focus management
-- [ ] ARIA live step announcements
-- [ ] Reduced-motion behavior
-- [ ] Screen-reader labels
+- [x] Focus management
+- [x] ARIA live step announcements
+- [x] Reduced-motion behavior
+- [x] Screen-reader labels
 
 Commit:
 

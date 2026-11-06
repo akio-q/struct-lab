@@ -31,6 +31,7 @@ describe("StepLog", () => {
   it("renders entries with feedback labels", () => {
     render(<StepLog entries={entries} cursor={0} />)
 
+    expect(screen.getByRole("list", { name: "Trace steps" })).toBeInTheDocument()
     expect(screen.getByText("push")).toBeInTheDocument()
     expect(screen.getByText("write")).toBeInTheDocument()
     expect(screen.getByText("Write 42 at index 0.")).toBeInTheDocument()

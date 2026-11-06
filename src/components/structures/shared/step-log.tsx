@@ -26,7 +26,7 @@ export function StepLog({ entries, cursor, onSelect, className }: StepLogProps) 
   }
 
   return (
-    <ol className={cn("flex flex-col gap-1", className)}>
+    <ol aria-label="Trace steps" className={cn("flex flex-col gap-1", className)}>
       {entries.map((entry, index) => {
         const isActive = index === cursor
         const meta = feedbackMeta[entry.feedback]

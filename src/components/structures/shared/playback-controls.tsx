@@ -88,11 +88,7 @@ export function PlaybackControls({
           <RotateCcw aria-hidden="true" />
         </Button>
 
-        <span
-          className="ml-auto font-mono text-[11px] text-muted-foreground tabular-nums"
-          aria-live="polite"
-          aria-atomic="true"
-        >
+        <span className="ml-auto font-mono text-[11px] text-muted-foreground tabular-nums">
           {hasFrames ? `Step ${currentStep} of ${total}` : "No steps"}
         </span>
       </div>

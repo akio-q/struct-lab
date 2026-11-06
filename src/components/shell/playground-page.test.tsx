@@ -17,4 +17,15 @@ describe("PlaygroundPage", () => {
     expect(document.getElementById("structure-panel-deque")).not.toHaveAttribute("aria-hidden")
     expect(document.getElementById("structure-panel-array")).toHaveAttribute("aria-hidden", "true")
   })
+
+  it("makes the skip-link target focusable and names the main landmark", () => {
+    render(<PlaygroundPage />)
+
+    const main = screen.getByRole("main")
+
+    expect(main).toHaveAttribute("id", "main-content")
+    expect(main).toHaveAttribute("tabindex", "-1")
+    expect(main).toHaveAttribute("aria-labelledby", "playground-title")
+    expect(document.getElementById("playground-title")).toHaveTextContent("Structure Playground")
+  })
 })
