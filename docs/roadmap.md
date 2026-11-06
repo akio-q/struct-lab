@@ -489,11 +489,11 @@ style: polish responsive canvas and mobile inspector
 
 ### 5.4 End-to-end tests
 
-- [ ] URL sync
-- [ ] Tab switching
-- [ ] Core operations
-- [ ] Stepper controls
-- [ ] Mobile smoke test
+- [x] URL sync
+- [x] Tab switching
+- [x] Core operations
+- [x] Stepper controls
+- [x] Mobile smoke test
 
 Commit:
 
