@@ -107,4 +107,10 @@ describe("ArrayCanvas", () => {
 
     expect(screen.getByTestId("array-mode")).toHaveTextContent("static")
   })
+
+  it("exposes a focusable, labelled canvas region", () => {
+    renderCanvas()
+
+    expect(screen.getByRole("region", { name: "Array canvas" })).toHaveAttribute("tabindex", "0")
+  })
 })

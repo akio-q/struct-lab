@@ -74,7 +74,12 @@ export function ArrayCanvas({ state, highlights = [], className }: ArrayCanvasPr
         </div>
       </div>
 
-      <div className="overflow-x-auto overscroll-x-contain p-3">
+      <div
+        role="region"
+        aria-label="Array canvas"
+        tabIndex={0}
+        className="overflow-x-auto overscroll-x-contain rounded-lg p-3 focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none"
+      >
         <div
           role="img"
           aria-label={describeArray(state)}

@@ -281,10 +281,12 @@ Sections:
 
 - Tabs use `role="tablist"` and arrow-key navigation
 - Inactive panels are `inert` and `aria-hidden`
-- Current step changes are announced with `aria-live="polite"`
+- The skip link targets a focusable `main` landmark named by the page heading
+- Current frame changes are announced through one polite live region per structure
+- Canvas regions expose accessible labels and are keyboard-focusable when scrollable
 - Icon-only buttons have accessible labels and tooltips
 - Color is never the only status indicator
-- `prefers-reduced-motion` is respected
+- `prefers-reduced-motion` disables autoplay and collapses Framer transitions to zero duration
 
 ## Quality gates
 

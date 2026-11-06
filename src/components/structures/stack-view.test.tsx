@@ -173,4 +173,20 @@ describe("StackView", () => {
 
     expect(screen.getByRole("button", { name: "1.5×" })).toHaveAttribute("aria-pressed", "true")
   })
+
+  it("announces the current step to assistive technology", () => {
+    render(<StackView />)
+
+    fireEvent.click(screen.getByRole("button", { name: "Push" }))
+
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Step 1 of 2: push, write. Push 42 onto index 3.",
+    )
+
+    fireEvent.keyDown(window, { key: "ArrowRight" })
+
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Step 2 of 2: push, complete. Pushed 42; top is index 3, depth 4 of 6.",
+    )
+  })
 })

@@ -21,6 +21,7 @@ import { PlaybackControls } from "@/components/structures/shared/playback-contro
 import { PointerInspector } from "@/components/structures/shared/pointer-inspector"
 import { StageFrame } from "@/components/structures/shared/stage-frame"
 import { StepLog } from "@/components/structures/shared/step-log"
+import { TraceAnnouncer } from "@/components/structures/shared/trace-announcer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts"
@@ -150,6 +151,11 @@ export function StackView({ active = true }: StackViewProps) {
         contentClassName="gap-3"
         className="min-w-0 border-0 bg-transparent shadow-none"
       >
+        <TraceAnnouncer
+          frame={player.frame}
+          cursor={player.trace.cursor}
+          total={player.trace.frames.length}
+        />
         <StackCanvas
           state={state}
           highlights={player.frame?.highlights}
