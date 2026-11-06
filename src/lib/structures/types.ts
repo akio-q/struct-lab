@@ -6,7 +6,9 @@ export type ComplexityClass = "O(1)" | "O(n)"
 
 export type PlaybackStatus = "idle" | "playing" | "paused"
 
-export type Speed = 0.5 | 1 | 1.5 | 2
+export const PLAYBACK_SPEEDS = [0.5, 1, 1.5, 2] as const
+
+export type Speed = (typeof PLAYBACK_SPEEDS)[number]
 
 export type Feedback = "neutral" | "success" | "warning" | "error"
 

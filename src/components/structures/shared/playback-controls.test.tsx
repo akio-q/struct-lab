@@ -84,4 +84,26 @@ describe("PlaybackControls", () => {
 
     expect(props.onSpeedChange).toHaveBeenCalledWith(2)
   })
+
+  it("exposes keyboard shortcuts on the playback actions", () => {
+    renderControls()
+
+    expect(screen.getByRole("button", { name: "Step back" })).toHaveAttribute(
+      "aria-keyshortcuts",
+      "ArrowLeft",
+    )
+    expect(screen.getByRole("button", { name: "Play" })).toHaveAttribute(
+      "aria-keyshortcuts",
+      "Space",
+    )
+    expect(screen.getByRole("button", { name: "Step forward" })).toHaveAttribute(
+      "aria-keyshortcuts",
+      "ArrowRight",
+    )
+    expect(screen.getByRole("button", { name: "Reset trace" })).toHaveAttribute(
+      "aria-keyshortcuts",
+      "Home",
+    )
+    expect(screen.getByText(/Space play\/pause/)).toBeInTheDocument()
+  })
 })
