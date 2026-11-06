@@ -615,6 +615,14 @@ export function LinkedListCanvas({
                             </span>
                           ) : null}
 
+                          <span
+                            data-testid={`linked-list-address-${node.id}`}
+                            title={`Address ${node.address}`}
+                            className="absolute top-1 right-1.5 font-mono text-[9px] leading-none text-muted-foreground/80 tabular-nums"
+                          >
+                            {node.address}
+                          </span>
+
                           {onPointerSelect ? (
                             <>
                               <button
@@ -686,6 +694,7 @@ export function LinkedListCanvas({
                           )}
 
                           <span
+                            data-testid={`linked-list-value-${node.id}`}
                             className="max-w-full truncate px-3 text-center font-mono text-base font-medium text-foreground tabular-nums"
                             title={String(node.value)}
                           >

@@ -1,11 +1,11 @@
 import { ArrayView } from "@/components/structures/array-view"
 import { DequeView } from "@/components/structures/deque-view"
+import { LinkedListView } from "@/components/structures/linked-list-view"
 import { QueueView } from "@/components/structures/queue-view"
 import { StackView } from "@/components/structures/stack-view"
 import { structureList } from "@/lib/structures/registry"
 import type { StructureId } from "@/lib/structures/types"
 import { cn } from "@/lib/utils"
-import { StructurePlaceholder } from "./structure-placeholder"
 
 export interface StructureRendererProps {
   activeStructureId: StructureId
@@ -41,7 +41,7 @@ export function StructureRenderer({ activeStructureId }: StructureRendererProps)
             ) : structure.id === "deque" ? (
               <DequeView active={isActive} />
             ) : (
-              <StructurePlaceholder structure={structure} />
+              <LinkedListView active={isActive} />
             )}
           </section>
         )

@@ -35,10 +35,12 @@ describe("StructureRenderer", () => {
     }
   })
 
-  it("renders the active structure metadata", () => {
+  it("mounts the linked list playground in the linked-list panel", () => {
     render(<StructureRenderer activeStructureId="linked-list" />)
 
     expect(screen.getByRole("heading", { name: "Doubly Linked List" })).toBeVisible()
+    expect(screen.getByRole("button", { name: "Prepend" })).toBeVisible()
+    expect(screen.getByTestId("linked-list-size")).toBeVisible()
   })
 
   it("mounts the array playground in the array panel", () => {
