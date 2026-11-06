@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react"
-import { describe, expect, it } from "vitest"
+import { fireEvent, render, screen } from "@testing-library/react"
+import { describe, expect, it, vi } from "vitest"
 import {
   LinkedListCanvas,
   buildLinkedListLinks,
@@ -64,6 +64,18 @@ describe("buildLinkedListPath", () => {
   it("draws prev links along the lower lane, right to left", () => {
     expect(buildLinkedListPath(fallbackBoxes[1], fallbackBoxes[0], "prev")).toBe(
       "M 168 56 C 143 56, 143 56, 118 56",
+    )
+  })
+
+  it("routes backward next links over the nodes", () => {
+    expect(buildLinkedListPath(fallbackBoxes[2], fallbackBoxes[0], "next")).toBe(
+      "M 448 32 C 448 -24, 118 -24, 118 32",
+    )
+  })
+
+  it("routes forward prev links under the nodes", () => {
+    expect(buildLinkedListPath(fallbackBoxes[0], fallbackBoxes[2], "prev")).toBe(
+      "M 0 56 C 0 112, 330 112, 330 56",
     )
   })
 })
@@ -197,5 +209,133 @@ describe("LinkedListCanvas", () => {
     rerender(<LinkedListCanvas state={createLinkedListState()} />)
 
     expect(screen.getByRole("img", { name: "Empty doubly linked list." })).toBeInTheDocument()
+  })
+
+  it("selects a pointer from its dot", () => {
+    const state = createLinkedListState({ initialValues: [12, 7, 24] })
+    const onPointerSelect = vi.fn()
+
+    render(<LinkedListCanvas state={state} onPointerSelect={onPointerSelect} />)
+
+    fireEvent.click(screen.getByRole("button", { name: "next pointer of 12 to 7" }))
+    fireEvent.click(screen.getByRole("button", { name: "prev pointer of 7 to 12" }))
+    fireEvent.click(screen.getByRole("button", { name: "next pointer of 24 is null" }))
+
+    expect(onPointerSelect).toHaveBeenNthCalledWith(1, {
+      nodeId: state.nodes[0].id,
+      direction: "next",
+    })
+    expect(onPointerSelect).toHaveBeenNthCalledWith(2, {
+      nodeId: state.nodes[1].id,
+      direction: "prev",
+    })
+    expect(onPointerSelect).toHaveBeenNthCalledWith(3, {
+      nodeId: state.nodes[2].id,
+      direction: "next",
+    })
+  })
+
+  it("marks the selected pointer and its source node", () => {
+    const state = createLinkedListState({ initialValues: [12, 7, 24] })
+
+    render(
+      <LinkedListCanvas
+        state={state}
+        selectedPointer={{ nodeId: state.nodes[0].id, direction: "next" }}
+        onPointerSelect={vi.fn()}
+      />,
+    )
+
+    const selected = screen.getByRole("button", { name: "next pointer of 12 to 7" })
+
+    expect(selected).toHaveAttribute("aria-pressed", "true")
+    expect(selected).toHaveAttribute("data-selected", "true")
+    expect(screen.getByRole("button", { name: "prev pointer of 12 is null" })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    )
+    expect(screen.getByTestId(`linked-list-card-${state.nodes[0].id}`)).toHaveClass("ring-1")
+    expect(screen.getByTestId("linked-list-hint")).toHaveTextContent("Selected 12.next → 7")
+  })
+
+  it("offers relink targets and disables the source and current target", () => {
+    const state = createLinkedListState({ initialValues: [12, 7, 24] })
+    const onRelinkTarget = vi.fn()
+
+    render(
+      <LinkedListCanvas
+        state={state}
+        selectedPointer={{ nodeId: state.nodes[0].id, direction: "next" }}
+        onPointerSelect={vi.fn()}
+        onRelinkTarget={onRelinkTarget}
+      />,
+    )
+
+    const source = screen.getByTestId(`linked-list-relink-${state.nodes[0].id}`)
+    const current = screen.getByTestId(`linked-list-relink-${state.nodes[1].id}`)
+    const other = screen.getByTestId(`linked-list-relink-${state.nodes[2].id}`)
+
+    expect(source).toBeDisabled()
+    expect(current).toBeDisabled()
+    expect(current).toHaveTextContent("linked")
+    expect(other).not.toBeDisabled()
+    expect(other).toHaveTextContent("relink")
+
+    fireEvent.click(other)
+
+    expect(onRelinkTarget).toHaveBeenCalledWith(state.nodes[2].id)
+  })
+
+  it("warns about broken links and shows the broken status", () => {
+    const state = createLinkedListState({ initialValues: [12, 7, 24] })
+    const broken: LinkedListState = {
+      ...state,
+      nodes: state.nodes.map((node, index) => (index === 1 ? { ...node, nextId: null } : node)),
+    }
+    const onRepair = vi.fn()
+
+    render(<LinkedListCanvas state={broken} onRepair={onRepair} />)
+
+    expect(screen.getByTestId("linked-list-status")).toHaveTextContent("broken")
+
+    const warning = screen.getByTestId("linked-list-integrity-warning")
+
+    expect(warning).toHaveAttribute("data-integrity", "broken")
+    expect(warning).toHaveTextContent("Broken links")
+    expect(warning).toHaveTextContent(/next should be "linked-list-node-3" but is null/)
+
+    fireEvent.click(screen.getByRole("button", { name: "Repair links" }))
+
+    expect(onRepair).toHaveBeenCalledTimes(1)
+  })
+
+  it("reports cycles in the status and warning", () => {
+    const state = createLinkedListState({ initialValues: [12, 7] })
+    const cyclic: LinkedListState = {
+      ...state,
+      nodes: state.nodes.map((node, index) =>
+        index === 0
+          ? { ...node, prevId: state.nodes[1].id }
+          : { ...node, nextId: state.nodes[0].id },
+      ),
+    }
+
+    render(<LinkedListCanvas state={cyclic} />)
+
+    expect(screen.getByTestId("linked-list-status")).toHaveTextContent("cycle")
+    expect(screen.getByTestId("linked-list-integrity-warning")).toHaveTextContent("Cycle detected")
+  })
+
+  it("does not warn when the list is intact", () => {
+    renderCanvas()
+
+    expect(screen.queryByTestId("linked-list-integrity-warning")).not.toBeInTheDocument()
+    expect(screen.getByTestId("linked-list-status")).toHaveTextContent("linked")
+  })
+
+  it("keeps pointer dots decorative without a selection handler", () => {
+    renderCanvas()
+
+    expect(screen.queryByRole("button", { name: /pointer of/ })).not.toBeInTheDocument()
   })
 })

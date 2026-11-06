@@ -415,10 +415,10 @@ feat(linked-list): add insertion, removal, and traversal animations
 
 ### 4.4 Pointer surgery
 
-- [ ] Detach pointer
-- [ ] Relink pointer
-- [ ] Integrity warning
-- [ ] Repair links
+- [x] Detach pointer
+- [x] Relink pointer
+- [x] Integrity warning
+- [x] Repair links
 
 Commit:
 
