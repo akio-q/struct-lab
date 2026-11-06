@@ -32,7 +32,7 @@ export function StepLog({ entries, cursor, onSelect, className }: StepLogProps) 
         const meta = feedbackMeta[entry.feedback]
         const Icon = meta.icon
         const rowClassName = cn(
-          "flex w-full items-start gap-2 rounded-lg border px-2 py-1.5 text-left transition-colors",
+          "flex w-full items-start gap-2 rounded-lg border px-2 py-1.5 text-left transition-colors pointer-coarse:min-h-11",
           isActive
             ? "border-primary/30 bg-primary/10"
             : "border-transparent hover:border-border hover:bg-white/[0.03]",

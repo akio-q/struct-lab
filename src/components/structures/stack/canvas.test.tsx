@@ -132,4 +132,10 @@ describe("StackCanvas", () => {
 
     expect(screen.getAllByTestId(/^stack-slot-/)).toHaveLength(7)
   })
+
+  it("exposes a focusable, labelled canvas region", () => {
+    renderCanvas()
+
+    expect(screen.getByRole("region", { name: "Stack canvas" })).toHaveAttribute("tabindex", "0")
+  })
 })

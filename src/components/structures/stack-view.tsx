@@ -1,6 +1,6 @@
 "use client"
 
-import { useId, useRef, useState, type ReactNode } from "react"
+import { useId, useRef, useState } from "react"
 import { useReducedMotion } from "framer-motion"
 import { CircleDashed } from "lucide-react"
 import { StackCanvas } from "@/components/structures/stack/canvas"
@@ -17,7 +17,9 @@ import {
   type StackState,
 } from "@/components/structures/stack/engine"
 import { ComplexityBadge } from "@/components/structures/shared/complexity-badge"
+import { InspectorPanel, InspectorSection } from "@/components/structures/shared/inspector-panel"
 import { PlaybackControls } from "@/components/structures/shared/playback-controls"
+import { PlaybackDock } from "@/components/structures/shared/playback-dock"
 import { PointerInspector } from "@/components/structures/shared/pointer-inspector"
 import { StageFrame } from "@/components/structures/shared/stage-frame"
 import { StepLog } from "@/components/structures/shared/step-log"
@@ -27,7 +29,6 @@ import { Input } from "@/components/ui/input"
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts"
 import { useTracePlayer } from "@/hooks/use-trace-player"
 import type { Complexity, PointerEntry } from "@/lib/structures/types"
-import { cn } from "@/lib/utils"
 
 const INITIAL_VALUES = [12, 7, 24] as const
 const STACK_CAPACITY = 6
@@ -138,7 +139,7 @@ export function StackView({ active = true }: StackViewProps) {
   }
 
   return (
-    <div className="grid min-w-0 gap-4 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_22rem]">
+    <div className="grid min-w-0 gap-4 p-4 pb-40 sm:p-5 sm:pb-40 lg:grid-cols-[minmax(0,1fr)_20rem] lg:pb-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
       {/* The structure panel owns the card surface; keep the stage flush with it. */}
       <StageFrame
         title="Stack"
@@ -237,7 +238,7 @@ export function StackView({ active = true }: StackViewProps) {
         </div>
       </StageFrame>
 
-      <aside aria-label="Stack inspector" className="flex min-w-0 flex-col gap-3">
+      <InspectorPanel label="Stack inspector">
         <InspectorSection title="Current step">
           <p className="font-mono text-xs text-foreground">
             {player.frame ? `${player.frame.operation} · ${player.frame.phase}` : "Idle"}
@@ -264,7 +265,7 @@ export function StackView({ active = true }: StackViewProps) {
           />
         </InspectorSection>
 
-        <InspectorSection title="Playback">
+        <PlaybackDock>
           <PlaybackControls
             status={player.status}
             speed={player.speed}
@@ -276,25 +277,8 @@ export function StackView({ active = true }: StackViewProps) {
             onReset={player.reset}
             onSpeedChange={player.setSpeed}
           />
-        </InspectorSection>
-      </aside>
+        </PlaybackDock>
+      </InspectorPanel>
     </div>
-  )
-}
-
-interface InspectorSectionProps {
-  title: string
-  children: ReactNode
-  className?: string
-}
-
-function InspectorSection({ title, children, className }: InspectorSectionProps) {
-  return (
-    <section className={cn("rounded-xl border border-border/70 bg-background/30 p-3", className)}>
-      <h3 className="font-mono text-[10px] tracking-[0.14em] text-muted-foreground uppercase">
-        {title}
-      </h3>
-      <div className="mt-2">{children}</div>
-    </section>
   )
 }

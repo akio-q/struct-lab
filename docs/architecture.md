@@ -256,7 +256,7 @@ Complexity:
 
 ## Inspector dock
 
-Desktop layout uses a right-side inspector. Mobile uses a full-width panel below the canvas with sticky playback controls.
+Desktop layout uses a right-side inspector. Below `lg`, the inspector stacks under the canvas with a visible `Inspector` heading, and playback controls become a fixed bottom dock with safe-area padding. The page reserves bottom space so the dock never covers the last inspector card.
 
 Sections:
 
@@ -265,6 +265,13 @@ Sections:
 3. Pointer/state inspector
 4. Step log
 5. Playback controls
+
+## Responsive behavior
+
+- Canvas strips scroll horizontally with contained overscroll and a labelled, focusable region.
+- Touch targets are at least 44px on coarse pointers; desktop keeps its compact controls.
+- Hidden panels clip their content so off-screen structures cannot extend the page height.
+- Checked at 360, 768, 1024, and 1440 widths.
 
 ## Animation strategy
 

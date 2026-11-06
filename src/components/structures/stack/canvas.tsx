@@ -120,117 +120,128 @@ export function StackCanvas({
 
       <div className="p-3">
         <div
-          data-testid="stack-chamber"
-          data-feedback={feedback}
-          className={cn(
-            "mx-auto w-max rounded-xl border p-3 transition-[border-color,background-color] duration-150",
-            feedback === "error"
-              ? "border-destructive/50 bg-destructive/[0.03]"
-              : "border-border/60 bg-background/20",
-          )}
+          role="region"
+          aria-label="Stack canvas"
+          tabIndex={0}
+          className="overflow-x-auto overscroll-x-contain rounded-lg focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none"
         >
           <div
-            role="img"
-            aria-label={describeStack(state)}
-            className="flex items-start gap-2 pr-16"
+            data-testid="stack-chamber"
+            data-feedback={feedback}
+            className={cn(
+              "mx-auto w-max rounded-xl border p-3 transition-[border-color,background-color] duration-150",
+              feedback === "error"
+                ? "border-destructive/50 bg-destructive/[0.03]"
+                : "border-border/60 bg-background/20",
+            )}
           >
-            <div aria-hidden="true" className="flex flex-col" style={{ gap: `${ROW_GAP_REM}rem` }}>
-              {Array.from({ length: state.capacity }, (_, row) => {
-                const index = state.capacity - 1 - row
-
-                return (
-                  <span
-                    key={index}
-                    data-testid={`stack-index-${index}`}
-                    className="flex items-center justify-end font-mono text-[10px] text-muted-foreground tabular-nums"
-                    style={{ height: `${SLOT_HEIGHT_REM}rem` }}
-                  >
-                    {index}
-                  </span>
-                )
-              })}
-              <span style={{ height: `${BASE_ROW_HEIGHT_REM}rem` }} />
-            </div>
-
-            <div className="relative flex flex-col" style={{ gap: `${ROW_GAP_REM}rem` }}>
-              {Array.from({ length: state.capacity }, (_, row) => {
-                const index = state.capacity - 1 - row
-                const item = state.items[index]
-                const role = roles.get(index)
-
-                return (
-                  <div
-                    key={index}
-                    data-testid={`stack-slot-${index}`}
-                    data-highlight={role}
-                    data-empty={item ? "false" : "true"}
-                    className={cn(
-                      "relative flex w-20 items-center justify-center overflow-hidden rounded-lg border transition-[background-color,border-color,box-shadow] duration-150",
-                      item
-                        ? "border-border bg-white/[0.04] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
-                        : "border-dashed border-border/60 bg-background/20",
-                      role ? highlightRoleMeta[role].slotClassName : null,
-                    )}
-                    style={{ height: `${SLOT_HEIGHT_REM}rem` }}
-                  >
-                    {role ? (
-                      <span
-                        aria-hidden="true"
-                        className={cn(
-                          "absolute top-1 left-1.5 font-mono text-[8px] leading-none tracking-[0.08em] uppercase",
-                          highlightRoleMeta[role].textClassName,
-                        )}
-                      >
-                        {highlightRoleMeta[role].label}
-                      </span>
-                    ) : null}
-
-                    <AnimatePresence initial={false}>
-                      {item ? (
-                        <motion.span
-                          key={item.id}
-                          initial={reduceMotion ? false : { opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={reduceMotion ? undefined : { opacity: 0, y: -14 }}
-                          transition={itemTransition}
-                          className="max-w-full truncate px-2 text-center font-mono text-sm font-medium text-foreground tabular-nums"
-                          title={String(item.value)}
-                        >
-                          {item.value}
-                        </motion.span>
-                      ) : null}
-                    </AnimatePresence>
-
-                    {item ? null : (
-                      <span aria-hidden="true" className="size-1 rounded-full bg-white/[0.08]" />
-                    )}
-                  </div>
-                )
-              })}
-
+            <div
+              role="img"
+              aria-label={describeStack(state)}
+              className="flex items-start gap-2 pr-16"
+            >
               <div
                 aria-hidden="true"
-                className="border-t border-border/70"
-                style={{ height: `${BASE_ROW_HEIGHT_REM}rem` }}
-              />
-
-              <motion.div
-                data-testid="stack-top"
-                data-top-index={topIndex}
-                initial={false}
-                animate={{ y: `${pointerY}rem` }}
-                transition={pointerTransition}
-                className="pointer-events-none absolute top-0 flex items-center"
-                style={{
-                  left: "calc(100% + 0.5rem)",
-                  height: `${SLOT_HEIGHT_REM}rem`,
-                }}
+                className="flex flex-col"
+                style={{ gap: `${ROW_GAP_REM}rem` }}
               >
-                <ChevronLeft aria-hidden="true" className="size-3 text-pointer" />
-                <span className="rounded-md border border-pointer/30 bg-pointer/10 px-1.5 py-0.5 font-mono text-[10px] leading-none tracking-wide text-pointer uppercase">
-                  top
-                </span>
-              </motion.div>
+                {Array.from({ length: state.capacity }, (_, row) => {
+                  const index = state.capacity - 1 - row
+
+                  return (
+                    <span
+                      key={index}
+                      data-testid={`stack-index-${index}`}
+                      className="flex items-center justify-end font-mono text-[10px] text-muted-foreground tabular-nums"
+                      style={{ height: `${SLOT_HEIGHT_REM}rem` }}
+                    >
+                      {index}
+                    </span>
+                  )
+                })}
+                <span style={{ height: `${BASE_ROW_HEIGHT_REM}rem` }} />
+              </div>
+
+              <div className="relative flex flex-col" style={{ gap: `${ROW_GAP_REM}rem` }}>
+                {Array.from({ length: state.capacity }, (_, row) => {
+                  const index = state.capacity - 1 - row
+                  const item = state.items[index]
+                  const role = roles.get(index)
+
+                  return (
+                    <div
+                      key={index}
+                      data-testid={`stack-slot-${index}`}
+                      data-highlight={role}
+                      data-empty={item ? "false" : "true"}
+                      className={cn(
+                        "relative flex w-20 items-center justify-center overflow-hidden rounded-lg border transition-[background-color,border-color,box-shadow] duration-150",
+                        item
+                          ? "border-border bg-white/[0.04] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                          : "border-dashed border-border/60 bg-background/20",
+                        role ? highlightRoleMeta[role].slotClassName : null,
+                      )}
+                      style={{ height: `${SLOT_HEIGHT_REM}rem` }}
+                    >
+                      {role ? (
+                        <span
+                          aria-hidden="true"
+                          className={cn(
+                            "absolute top-1 left-1.5 font-mono text-[8px] leading-none tracking-[0.08em] uppercase",
+                            highlightRoleMeta[role].textClassName,
+                          )}
+                        >
+                          {highlightRoleMeta[role].label}
+                        </span>
+                      ) : null}
+
+                      <AnimatePresence initial={false}>
+                        {item ? (
+                          <motion.span
+                            key={item.id}
+                            initial={reduceMotion ? false : { opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={reduceMotion ? undefined : { opacity: 0, y: -14 }}
+                            transition={itemTransition}
+                            className="max-w-full truncate px-2 text-center font-mono text-sm font-medium text-foreground tabular-nums"
+                            title={String(item.value)}
+                          >
+                            {item.value}
+                          </motion.span>
+                        ) : null}
+                      </AnimatePresence>
+
+                      {item ? null : (
+                        <span aria-hidden="true" className="size-1 rounded-full bg-white/[0.08]" />
+                      )}
+                    </div>
+                  )
+                })}
+
+                <div
+                  aria-hidden="true"
+                  className="border-t border-border/70"
+                  style={{ height: `${BASE_ROW_HEIGHT_REM}rem` }}
+                />
+
+                <motion.div
+                  data-testid="stack-top"
+                  data-top-index={topIndex}
+                  initial={false}
+                  animate={{ y: `${pointerY}rem` }}
+                  transition={pointerTransition}
+                  className="pointer-events-none absolute top-0 flex items-center"
+                  style={{
+                    left: "calc(100% + 0.5rem)",
+                    height: `${SLOT_HEIGHT_REM}rem`,
+                  }}
+                >
+                  <ChevronLeft aria-hidden="true" className="size-3 text-pointer" />
+                  <span className="rounded-md border border-pointer/30 bg-pointer/10 px-1.5 py-0.5 font-mono text-[10px] leading-none tracking-wide text-pointer uppercase">
+                    top
+                  </span>
+                </motion.div>
+              </div>
             </div>
           </div>
         </div>

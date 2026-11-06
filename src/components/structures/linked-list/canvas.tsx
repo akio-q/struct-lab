@@ -454,7 +454,7 @@ export function LinkedListCanvas({
             <button
               type="button"
               onClick={onRepair}
-              className="ml-auto shrink-0 rounded-md border border-destructive/40 px-2 py-1 font-mono text-[10px] tracking-[0.08em] text-destructive uppercase transition-colors hover:bg-destructive/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              className="ml-auto shrink-0 rounded-md border border-destructive/40 px-2 py-1 font-mono text-[10px] tracking-[0.08em] text-destructive uppercase transition-colors hover:bg-destructive/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none pointer-coarse:min-h-11"
             >
               Repair links
             </button>
@@ -636,7 +636,7 @@ export function LinkedListCanvas({
                                 onClick={() =>
                                   onPointerSelect({ nodeId: node.id, direction: "next" })
                                 }
-                                className="group absolute right-0 z-10 flex size-6 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                                className="group absolute right-0 z-10 flex size-6 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none pointer-coarse:size-11"
                                 style={{ top: `calc(50% - ${LINK_LANE_OFFSET}px)` }}
                               >
                                 <span
@@ -662,7 +662,7 @@ export function LinkedListCanvas({
                                 onClick={() =>
                                   onPointerSelect({ nodeId: node.id, direction: "prev" })
                                 }
-                                className="group absolute left-0 z-10 flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                                className="group absolute left-0 z-10 flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none pointer-coarse:size-11"
                                 style={{ top: `calc(50% + ${LINK_LANE_OFFSET}px)` }}
                               >
                                 <span
@@ -709,7 +709,7 @@ export function LinkedListCanvas({
                               disabled={isSelectedSource || isCurrentTarget}
                               onClick={() => onRelinkTarget?.(node.id)}
                               className={cn(
-                                "absolute inset-x-2 bottom-1 rounded-md border px-1 py-0.5 font-mono text-[9px] leading-none tracking-[0.08em] uppercase transition-colors",
+                                "absolute inset-x-2 bottom-1 rounded-md border px-1 py-0.5 font-mono text-[9px] leading-none tracking-[0.08em] uppercase transition-colors pointer-coarse:after:absolute pointer-coarse:after:-inset-3 pointer-coarse:after:content-['']",
                                 isSelectedSource || isCurrentTarget
                                   ? "cursor-not-allowed border-border/50 text-muted-foreground/50"
                                   : "border-primary/40 text-primary hover:border-primary hover:bg-primary/10",

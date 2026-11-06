@@ -29,7 +29,9 @@ export function StructureRenderer({ activeStructureId }: StructureRendererProps)
             className={cn(
               "flex flex-col rounded-2xl border border-border/70 bg-panel/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]",
               "focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none",
-              isActive ? "relative flex-1" : "pointer-events-none absolute inset-0 opacity-0",
+              isActive
+                ? "relative flex-1"
+                : "pointer-events-none absolute inset-0 overflow-hidden opacity-0",
             )}
           >
             {structure.id === "array" ? (
