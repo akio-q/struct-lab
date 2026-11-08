@@ -1,6 +1,7 @@
 "use client"
 
-import { AnimatePresence, motion, useReducedMotion, type Transition } from "framer-motion"
+import { memo } from "react"
+import { AnimatePresence, m, useReducedMotion, type Transition } from "framer-motion"
 import { arraySlotId, type ArrayState } from "@/components/structures/array/engine"
 import { highlightRoleMeta, resolveSlotRoles } from "@/components/structures/shared/highlight-roles"
 import type { Highlight } from "@/lib/structures/types"
@@ -26,7 +27,11 @@ function describeArray(state: ArrayState): string {
   return `${mode} array with ${state.items.length} of ${state.capacity} slots used: ${values}.`
 }
 
-export function ArrayCanvas({ state, highlights = [], className }: ArrayCanvasProps) {
+export const ArrayCanvas = memo(function ArrayCanvas({
+  state,
+  highlights = [],
+  className,
+}: ArrayCanvasProps) {
   const reduceMotion = useReducedMotion()
   const roles = resolveSlotRoles(state, highlights, arraySlotId)
   const layoutTransition: Transition = reduceMotion
@@ -35,6 +40,7 @@ export function ArrayCanvas({ state, highlights = [], className }: ArrayCanvasPr
 
   return (
     <div
+      data-testid="array-canvas"
       className={cn(
         "min-w-0 overflow-hidden rounded-xl border border-border/70 bg-background/30",
         className,
@@ -126,7 +132,7 @@ export function ArrayCanvas({ state, highlights = [], className }: ArrayCanvasPr
             const role = roles.get(index)
 
             return (
-              <motion.div
+              <m.div
                 key={`slot-${index}`}
                 data-testid={`array-slot-${index}`}
                 data-highlight={role}
@@ -146,13 +152,13 @@ export function ArrayCanvas({ state, highlights = [], className }: ArrayCanvasPr
                 {item ? null : (
                   <span aria-hidden="true" className="size-1 rounded-full bg-white/[0.08]" />
                 )}
-              </motion.div>
+              </m.div>
             )
           })}
 
           <AnimatePresence initial={false}>
             {state.items.map((item, index) => (
-              <motion.div
+              <m.div
                 key={item.id}
                 data-testid={`array-item-${item.id}`}
                 data-highlight={roles.get(index)}
@@ -170,11 +176,11 @@ export function ArrayCanvas({ state, highlights = [], className }: ArrayCanvasPr
                 >
                   {item.value}
                 </span>
-              </motion.div>
+              </m.div>
             ))}
           </AnimatePresence>
         </div>
       </div>
     </div>
   )
-}
+})

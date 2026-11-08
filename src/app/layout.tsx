@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next"
 import { Fira_Code, Geist } from "next/font/google"
+import { MotionProvider } from "@/components/providers/motion-provider"
 import { siteConfig } from "@/lib/site"
 import "./globals.css"
 
@@ -40,7 +41,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Skip to content
         </a>
-        {children}
+        <MotionProvider>{children}</MotionProvider>
       </body>
     </html>
   )

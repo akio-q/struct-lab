@@ -12,7 +12,7 @@ test("mobile layout runs an operation with a fixed playback dock", async ({ page
   const dock = page.getByRole("region", { name: "Playback" })
 
   await expect(panel.getByTestId("array-capacity")).toHaveText("4")
-  await expect(panel.getByRole("region", { name: "Array canvas" })).toBeVisible()
+  await expect(panel.getByTestId("array-canvas")).toBeVisible()
   await expect(dock).toBeVisible()
   await expect(dock).toHaveCSS("position", "fixed")
 
