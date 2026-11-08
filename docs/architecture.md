@@ -284,6 +284,24 @@ Sections:
 - Removed links retract with `pathLength: 0`
 - Hidden panels pause playback and do not run animation loops
 
+## Performance
+
+- `MotionProvider` wraps the app in `LazyMotion` with `strict` and loads the `domMax` feature bundle asynchronously, so layout and animation features stay off the critical path.
+- All animated nodes use `m` rather than `motion`; `domMax` is required for `layout` and shared `layoutId` transitions.
+- The five structure canvases are memoized. The linked-list view keeps its canvas callbacks stable with `useCallback`.
+- Every canvas root exposes a stable `data-testid` (`array-canvas`, `stack-canvas`, `queue-canvas`, `deque-canvas`, `linked-list-canvas`).
+
+Bundle review with `next analyze` (baseline → after):
+
+| Metric                            | Baseline | After    |
+| --------------------------------- | -------- | -------- |
+| Largest client chunk              | 292.1 KB | 171.9 KB |
+| Critical-path JS for `/`          | 737.5 KB | 647.9 KB |
+| Deferred motion feature chunk     | —        | 102.4 KB |
+| Total route JS including deferred | 737.5 KB | 750.3 KB |
+
+The critical path shrinks by about 90 KB while the complete route payload grows by roughly 13 KB (1.7%), because the full layout feature set is now available after hydration instead of up front.
+
 ## Accessibility
 
 - Tabs use `role="tablist"` and arrow-key navigation

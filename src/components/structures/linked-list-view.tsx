@@ -1,6 +1,6 @@
 "use client"
 
-import { useId, useRef, useState } from "react"
+import { useCallback, useId, useRef, useState } from "react"
 import { useReducedMotion } from "framer-motion"
 import { CircleDashed } from "lucide-react"
 import { LinkedListCanvas } from "@/components/structures/linked-list/canvas"
@@ -71,6 +71,7 @@ export function LinkedListView({ active = true }: LinkedListViewProps) {
   const valueInputRef = useRef<HTMLInputElement>(null)
   const reduceMotion = useReducedMotion()
   const player = useTracePlayer<LinkedListState>({ active, autoPlay: !reduceMotion })
+  const { appendFrames } = player
   useKeyboardShortcuts({
     active,
     speed: player.speed,
@@ -143,11 +144,14 @@ export function LinkedListView({ active = true }: LinkedListViewProps) {
     }
   }
 
-  function runOperation(frames: LinkedListFrame[]) {
-    setInputError(null)
-    setSelectedPointer(null)
-    player.appendFrames(frames)
-  }
+  const runOperation = useCallback(
+    (frames: LinkedListFrame[]) => {
+      setInputError(null)
+      setSelectedPointer(null)
+      appendFrames(frames)
+    },
+    [appendFrames],
+  )
 
   function readValue(): number | null {
     const value = parseFiniteNumber(valueInput)
@@ -213,27 +217,30 @@ export function LinkedListView({ active = true }: LinkedListViewProps) {
     runOperation(traverseLinkedList(state))
   }
 
-  function handleRepair() {
+  const handleRepair = useCallback(() => {
     runOperation(repairLinkedListLinks(state))
-  }
+  }, [runOperation, state])
 
-  function handlePointerSelect(pointer: LinkedListPointerRef) {
+  const handlePointerSelect = useCallback((pointer: LinkedListPointerRef) => {
     setSelectedPointer((current) =>
       current?.nodeId === pointer.nodeId && current.direction === pointer.direction
         ? null
         : pointer,
     )
-  }
+  }, [])
 
-  function handleRelinkTarget(nodeId: string) {
-    if (!selectedPointer) {
-      return
-    }
+  const handleRelinkTarget = useCallback(
+    (nodeId: string) => {
+      if (!selectedPointer) {
+        return
+      }
 
-    runOperation(
-      relinkLinkedListPointer(state, selectedPointer.nodeId, selectedPointer.direction, nodeId),
-    )
-  }
+      runOperation(
+        relinkLinkedListPointer(state, selectedPointer.nodeId, selectedPointer.direction, nodeId),
+      )
+    },
+    [runOperation, selectedPointer, state],
+  )
 
   function handleReset() {
     setSelectedPointer(null)

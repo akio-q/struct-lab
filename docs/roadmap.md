@@ -503,10 +503,10 @@ test(e2e): cover URL sync, tab switching, and core operations
 
 ### 5.5 Performance
 
-- [ ] LazyMotion
-- [ ] Memoized canvases
-- [ ] Stable selectors
-- [ ] Bundle review
+- [x] LazyMotion
+- [x] Memoized canvases
+- [x] Stable selectors
+- [x] Bundle review
 
 Commit:
 

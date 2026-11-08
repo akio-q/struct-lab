@@ -1,6 +1,7 @@
 "use client"
 
-import { AnimatePresence, motion, useReducedMotion, type Transition } from "framer-motion"
+import { memo } from "react"
+import { AnimatePresence, m, useReducedMotion, type Transition } from "framer-motion"
 import { ChevronDown, ChevronUp } from "lucide-react"
 import {
   isQueueEmpty,
@@ -40,7 +41,7 @@ function describeQueue(state: QueueState): string {
   return `Queue with ${state.items.length} of ${state.capacity} slots used; head is ${head.value} at index 0, tail is ${tail.value} at index ${state.items.length - 1}. Values from head to tail: ${values}.`
 }
 
-export function QueueCanvas({
+export const QueueCanvas = memo(function QueueCanvas({
   state,
   highlights = [],
   feedback = "neutral",
@@ -70,6 +71,7 @@ export function QueueCanvas({
 
   return (
     <div
+      data-testid="queue-canvas"
       className={cn(
         "min-w-0 overflow-hidden rounded-xl border border-border/70 bg-background/30",
         className,
@@ -138,7 +140,7 @@ export function QueueCanvas({
               }}
             >
               {isEmpty ? null : (
-                <motion.div
+                <m.div
                   key="tail"
                   data-testid="queue-tail"
                   data-tail-index={tailIndex}
@@ -152,7 +154,7 @@ export function QueueCanvas({
                     <ChevronDown className="size-3" />
                     tail
                   </span>
-                </motion.div>
+                </m.div>
               )}
 
               {Array.from({ length: state.capacity }, (_, index) => {
@@ -195,7 +197,7 @@ export function QueueCanvas({
 
               <AnimatePresence initial={false}>
                 {state.items.map((item, index) => (
-                  <motion.div
+                  <m.div
                     key={item.id}
                     data-testid={`queue-item-${item.id}`}
                     data-highlight={roles.get(index)}
@@ -213,7 +215,7 @@ export function QueueCanvas({
                     >
                       {item.value}
                     </span>
-                  </motion.div>
+                  </m.div>
                 ))}
               </AnimatePresence>
 
@@ -255,4 +257,4 @@ export function QueueCanvas({
       </div>
     </div>
   )
-}
+})

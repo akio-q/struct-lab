@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, type KeyboardEvent } from "react"
-import { motion, useReducedMotion } from "framer-motion"
+import { m, useReducedMotion } from "framer-motion"
 import { structureList } from "@/lib/structures/registry"
 import type { StructureId } from "@/lib/structures/types"
 import { cn } from "@/lib/utils"
@@ -85,7 +85,7 @@ export function StructureTabs({ value, onValueChange, className }: StructureTabs
             )}
           >
             {isActive ? (
-              <motion.span
+              <m.span
                 aria-hidden="true"
                 layoutId={TAB_PILL_ID}
                 className="absolute inset-0 -z-10 rounded-lg border border-white/[0.06] bg-white/[0.07] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"

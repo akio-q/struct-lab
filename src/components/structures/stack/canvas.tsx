@@ -1,6 +1,7 @@
 "use client"
 
-import { AnimatePresence, motion, useReducedMotion, type Transition } from "framer-motion"
+import { memo } from "react"
+import { AnimatePresence, m, useReducedMotion, type Transition } from "framer-motion"
 import { ChevronLeft } from "lucide-react"
 import { highlightRoleMeta, resolveSlotRoles } from "@/components/structures/shared/highlight-roles"
 import {
@@ -42,7 +43,7 @@ function describeStack(state: StackState): string {
   return `Stack with ${state.items.length} of ${state.capacity} slots used; top is ${top.value} at index ${state.items.length - 1}. Values from top to bottom: ${values}.`
 }
 
-export function StackCanvas({
+export const StackCanvas = memo(function StackCanvas({
   state,
   highlights = [],
   feedback = "neutral",
@@ -77,6 +78,7 @@ export function StackCanvas({
 
   return (
     <div
+      data-testid="stack-canvas"
       className={cn(
         "min-w-0 overflow-hidden rounded-xl border border-border/70 bg-background/30",
         className,
@@ -197,7 +199,7 @@ export function StackCanvas({
 
                       <AnimatePresence initial={false}>
                         {item ? (
-                          <motion.span
+                          <m.span
                             key={item.id}
                             initial={reduceMotion ? false : { opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -207,7 +209,7 @@ export function StackCanvas({
                             title={String(item.value)}
                           >
                             {item.value}
-                          </motion.span>
+                          </m.span>
                         ) : null}
                       </AnimatePresence>
 
@@ -224,7 +226,7 @@ export function StackCanvas({
                   style={{ height: `${BASE_ROW_HEIGHT_REM}rem` }}
                 />
 
-                <motion.div
+                <m.div
                   data-testid="stack-top"
                   data-top-index={topIndex}
                   initial={false}
@@ -240,7 +242,7 @@ export function StackCanvas({
                   <span className="rounded-md border border-pointer/30 bg-pointer/10 px-1.5 py-0.5 font-mono text-[10px] leading-none tracking-wide text-pointer uppercase">
                     top
                   </span>
-                </motion.div>
+                </m.div>
               </div>
             </div>
           </div>
@@ -255,4 +257,4 @@ export function StackCanvas({
       </div>
     </div>
   )
-}
+})

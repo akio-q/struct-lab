@@ -1,6 +1,7 @@
 "use client"
 
-import { AnimatePresence, motion, useReducedMotion, type Transition } from "framer-motion"
+import { memo } from "react"
+import { AnimatePresence, m, useReducedMotion, type Transition } from "framer-motion"
 import { ChevronDown, ChevronUp } from "lucide-react"
 import {
   dequeBackIndex,
@@ -40,7 +41,7 @@ function describeDeque(state: DequeState): string {
   return `Deque with ${state.items.length} of ${state.capacity} slots used; front is ${front.value} at index 0, back is ${back.value} at index ${state.items.length - 1}. Values from front to back: ${values}.`
 }
 
-export function DequeCanvas({
+export const DequeCanvas = memo(function DequeCanvas({
   state,
   highlights = [],
   feedback = "neutral",
@@ -70,6 +71,7 @@ export function DequeCanvas({
 
   return (
     <div
+      data-testid="deque-canvas"
       className={cn(
         "min-w-0 overflow-hidden rounded-xl border border-border/70 bg-background/30",
         className,
@@ -138,7 +140,7 @@ export function DequeCanvas({
               }}
             >
               {isEmpty ? null : (
-                <motion.div
+                <m.div
                   key="back"
                   data-testid="deque-back"
                   data-back-index={backIndex}
@@ -152,7 +154,7 @@ export function DequeCanvas({
                     <ChevronDown className="size-3" />
                     back
                   </span>
-                </motion.div>
+                </m.div>
               )}
 
               {Array.from({ length: state.capacity }, (_, index) => {
@@ -200,7 +202,7 @@ export function DequeCanvas({
                   const offset = isFirst ? -24 : isLast ? 24 : 0
 
                   return (
-                    <motion.div
+                    <m.div
                       key={item.id}
                       data-testid={`deque-item-${item.id}`}
                       data-highlight={roles.get(index)}
@@ -218,7 +220,7 @@ export function DequeCanvas({
                       >
                         {item.value}
                       </span>
-                    </motion.div>
+                    </m.div>
                   )
                 })}
               </AnimatePresence>
@@ -261,4 +263,4 @@ export function DequeCanvas({
       </div>
     </div>
   )
-}
+})

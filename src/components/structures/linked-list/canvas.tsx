@@ -1,8 +1,8 @@
 "use client"
 
-import { AnimatePresence, motion, useReducedMotion, type Transition } from "framer-motion"
+import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
+import { AnimatePresence, m, useReducedMotion, type Transition } from "framer-motion"
 import { TriangleAlert } from "lucide-react"
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import {
   checkLinkedListIntegrity,
   findLinkedListNode,
@@ -239,7 +239,7 @@ function describeLinkedList(state: LinkedListState): string {
   return `Doubly linked list with ${state.nodes.length} nodes; head is ${head.value} at ${head.address}, tail is ${tail.value} at ${tail.address}. Values from head to tail: ${values}.`
 }
 
-export function LinkedListCanvas({
+export const LinkedListCanvas = memo(function LinkedListCanvas({
   state,
   highlights = EMPTY_HIGHLIGHTS,
   feedback = "neutral",
@@ -392,6 +392,7 @@ export function LinkedListCanvas({
 
   return (
     <div
+      data-testid="linked-list-canvas"
       className={cn(
         "min-w-0 overflow-hidden rounded-xl border border-border/70 bg-background/30",
         className,
@@ -520,7 +521,7 @@ export function LinkedListCanvas({
                     const tone: LinkTone = role ?? "default"
 
                     return (
-                      <motion.path
+                      <m.path
                         key={link.id}
                         data-testid={`linked-list-edge-${link.id}`}
                         data-direction={link.direction}
@@ -574,7 +575,7 @@ export function LinkedListCanvas({
                       const isCurrentTarget = selectedTargetId === node.id
 
                       return (
-                        <motion.div
+                        <m.div
                           key={node.id}
                           ref={(element) => {
                             if (element) {
@@ -718,7 +719,7 @@ export function LinkedListCanvas({
                               {isCurrentTarget ? "linked" : "relink"}
                             </button>
                           ) : null}
-                        </motion.div>
+                        </m.div>
                       )
                     })}
                   </AnimatePresence>
@@ -737,4 +738,4 @@ export function LinkedListCanvas({
       </div>
     </div>
   )
-}
+})
