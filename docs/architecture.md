@@ -321,13 +321,17 @@ Before committing:
 pnpm lint
 pnpm typecheck
 pnpm test
+pnpm format:check
 ```
 
 Before phase checkpoints and releases:
 
 ```powershell
+pnpm test:e2e
 pnpm build
 ```
+
+CI lives in `.github/workflows/ci.yml`. It runs on every pull request targeting `main` and every push to `main`, and its **Quality gate** job runs lint, typecheck, unit tests, formatting, and the production build.
 
 ## Deployment
 

@@ -516,9 +516,9 @@ perf: lazy-load motion features and memoize trace rendering
 
 ### 5.6 CI
 
-- [ ] GitHub Actions
-- [ ] Lint, typecheck, test, build
-- [ ] Branch protection status checks
+- [x] GitHub Actions
+- [x] Lint, typecheck, test, build
+- [x] Branch protection status checks
 
 Commit:
 

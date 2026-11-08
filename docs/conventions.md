@@ -36,8 +36,9 @@ Recommended branch protection for `main`:
 - Require conversation resolution
 - Restrict deletions
 - Block force pushes
+- Require the **Quality gate** status check
 
-Add required status checks after CI exists.
+CI runs through `.github/workflows/ci.yml` on every pull request targeting `main` and every push to `main`. The workflow has one required job, **Quality gate**, which runs lint, typecheck, unit tests, `format:check`, and a production build. End-to-end tests stay a local phase-checkpoint gate for now.
 
 ## Commits
 
