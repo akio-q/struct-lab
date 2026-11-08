@@ -333,6 +333,8 @@ pnpm build
 
 CI lives in `.github/workflows/ci.yml`. It runs on every pull request targeting `main` and every push to `main`, and its **Quality gate** job runs lint, typecheck, unit tests, formatting, and the production build.
 
+`pnpm typecheck` runs `next typegen` before `tsc --noEmit`, so generated route types exist on a fresh checkout and in CI.
+
 ## Deployment
 
 The app is designed for Vercel with no environment variables for v1.
