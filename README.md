@@ -1,5 +1,7 @@
 # StructLab
 
+[![CI](https://github.com/akio-q/struct-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/akio-q/struct-lab/actions/workflows/ci.yml)
+
 StructLab is an interactive visual playground for fundamental data structures. The first release covers arrays, stacks, queues, deques, and doubly linked lists in a single-page canvas with step-by-step traces.
 
 ## Stack
@@ -85,6 +87,10 @@ Before phase checkpoints:
 pnpm test:e2e
 pnpm build
 ```
+
+## Continuous integration
+
+Every pull request targeting `main` runs `.github/workflows/ci.yml`, which covers lint, typecheck, unit tests, formatting, and a production build. The required branch protection check is **Quality gate**.
 
 ## Project structure
 
