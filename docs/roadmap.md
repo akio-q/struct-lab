@@ -528,9 +528,9 @@ ci: add lint, typecheck, test, and build quality gate
 
 ### 5.7 Deployment docs
 
-- [ ] Vercel setup
-- [ ] Contribution guide
-- [ ] Deployment notes
+- [x] Vercel setup
+- [x] Contribution guide
+- [x] Deployment notes
 
 Commit:
 

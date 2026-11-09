@@ -92,6 +92,10 @@ pnpm build
 
 Every pull request targeting `main` runs `.github/workflows/ci.yml`, which covers lint, typecheck, unit tests, formatting, and a production build. The required branch protection check is **Quality gate**.
 
+## Contributing
+
+See [contributing](docs/contributing.md) for local setup, the change workflow, testing expectations, and the pull request checklist.
+
 ## Project structure
 
 ```text
@@ -119,14 +123,18 @@ Do not commit directly to `main`. Keep feature work on a personal branch and mer
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
 - [Collaboration conventions](docs/conventions.md)
+- [Contributing](docs/contributing.md)
+- [Deployment](docs/deployment.md)
 - [Architecture decisions](docs/decisions.md)
 - [Agent instructions](AGENTS.md)
 
 ## Deployment
 
-The app is designed for Vercel with no environment variables required for v1.
+Vercel hosts the app with no environment variables required for v1.
 
 - Framework preset: Next.js
 - Install command: `pnpm install --frozen-lockfile`
 - Build command: `pnpm build`
 - Node version: 22.x
+
+See [deployment](docs/deployment.md) for project setup, previews, rollback, and troubleshooting.

@@ -337,9 +337,12 @@ CI lives in `.github/workflows/ci.yml`. It runs on every pull request targeting 
 
 ## Deployment
 
-The app is designed for Vercel with no environment variables for v1.
+The app is designed for Vercel with no environment variables for v1. `/` is prerendered as static content, so no runtime services or secrets are involved.
 
 - Framework preset: Next.js
 - Install command: `pnpm install --frozen-lockfile`
 - Build command: `pnpm build`
 - Node version: 22.x
+- `packageManager` pins pnpm 11.14.0
+
+`main` deploys to production and every other branch produces a preview deployment. CI verifies code quality but never deploys. See [Deployment](deployment.md) for setup, previews, rollback, and troubleshooting.

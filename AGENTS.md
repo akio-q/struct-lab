@@ -19,6 +19,8 @@ Read these before making architectural changes:
 - `docs/architecture.md` — system design and visual specification
 - `docs/roadmap.md` — phased execution plan and exact commit messages
 - `docs/conventions.md` — branch, commit, PR, and verification rules
+- `docs/contributing.md` — setup, change workflow, and PR checklist
+- `docs/deployment.md` — Vercel setup, previews, rollback, and troubleshooting
 - `docs/decisions.md` — accepted architecture decisions
 
 ## Stack
