@@ -135,7 +135,10 @@ Tags are created after the phase has landed in `main`.
 - Update `docs/architecture.md` when architecture changes.
 - Record important decisions in `docs/decisions.md`.
 - Keep `README.md` focused on setup and project overview.
+- Update `docs/deployment.md` when hosting, build, or environment settings change.
 - Include screenshots or short recordings in PRs for UI changes.
+
+New contributors should start with `docs/contributing.md`, which walks through setup, the change workflow, and the pull request checklist.
 
 ## Environment
 
