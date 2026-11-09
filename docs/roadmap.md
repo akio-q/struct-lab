@@ -540,9 +540,9 @@ docs: add deployment and contribution guide
 
 ### 5.8 Release
 
-- [ ] Final QA
-- [ ] Version metadata
-- [ ] Release notes
+- [x] Final QA
+- [x] Version metadata
+- [x] Release notes
 
 Commit:
 
@@ -554,7 +554,7 @@ Checkpoint:
 
 ```powershell
 pnpm lint
-pnpm exec tsc --noEmit
+pnpm typecheck
 pnpm test
 pnpm test:e2e
 pnpm build

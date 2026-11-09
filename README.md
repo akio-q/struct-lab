@@ -15,15 +15,17 @@ StructLab is an interactive visual playground for fundamental data structures. T
 
 ## Status
 
-Phase 0 — Foundation is complete.
+v1.0.0 is released. All five structures are complete.
 
-- [x] 0.1 Scaffold
-- [x] 0.2 UI dependencies
-- [x] 0.3 Design foundation
-- [x] 0.4 Tooling
-- [x] 0.5 Documentation baseline
+- [x] Single-page shell with URL-synced tabs and preserved state
+- [x] Array, stack, queue, deque, and doubly linked list visualizers
+- [x] Shared trace engine with stepping, autoplay, and complexity
+- [x] Inspector, step log, and pointer details
+- [x] Keyboard navigation, live announcements, and reduced motion
+- [x] Responsive canvas with a mobile playback dock
+- [x] CI quality gate for lint, typecheck, tests, formatting, and build
 
-The next milestone is Phase 1 — the single-page shell. See the [roadmap](docs/roadmap.md) for the full plan.
+See the [roadmap](docs/roadmap.md) for the full plan and the [changelog](CHANGELOG.md) for release contents.
 
 ## Requirements
 
@@ -122,6 +124,7 @@ Do not commit directly to `main`. Keep feature work on a personal branch and mer
 
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
+- [Changelog](CHANGELOG.md)
 - [Collaboration conventions](docs/conventions.md)
 - [Contributing](docs/contributing.md)
 - [Deployment](docs/deployment.md)
